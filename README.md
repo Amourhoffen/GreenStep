@@ -115,15 +115,15 @@ flowchart TD
     classDef socialNode fill:#1e3a8a,stroke:#60a5fa,stroke-width:2px,color:#fff,rx:10,ry:10
     classDef impactNode fill:#064e3b,stroke:#10b981,stroke-width:3px,color:#fff,rx:10,ry:10
 
-    A["👤 User Logs In & Adds Daily Routine"] :::startNode
-    B["🧠 ML Private Analysis: Calculates Footprint & Tasks"] :::aiNode
-    C["🤔 User is Confused / Wants to Learn"] :::startNode
-    D["💬 AI RAG Chat & Knowledge Hub Videos"] :::aiNode
-    E["🌳 Scans & Plants Tree via Gemini Vision"] :::actionNode
-    F["📸 Shares to GreenStep Community & LinkedIn"] :::socialNode
-    G["🗺️ Uses Map, Activity Logger & Joins Local Events"] :::actionNode
-    H["🏆 Earns Eco-Rewards & Gift Coupons"] :::socialNode
-    I["🌍 The Ultimate Goal: CO₂ to O₂ (Life is Green!)"] :::impactNode
+    A["👤 User Logs In & Adds Daily Routine"]
+    B["🧠 ML Private Analysis: Calculates Footprint & Tasks"]
+    C["🤔 User is Confused / Wants to Learn"]
+    D["💬 AI RAG Chat & Knowledge Hub Videos"]
+    E["🌳 Scans & Plants Tree via Gemini Vision"]
+    F["📸 Shares to GreenStep Community & LinkedIn"]
+    G["🗺️ Uses Map, Activity Logger & Joins Local Events"]
+    H["🏆 Earns Eco-Rewards & Gift Coupons"]
+    I["🌍 The Ultimate Goal: CO₂ to O₂ (Life is Green!)"]
 
     A --> B
     B --> C
@@ -133,6 +133,12 @@ flowchart TD
     F --> G
     G --> H
     H --> I
+
+    class A,C startNode
+    class B,D aiNode
+    class E,G actionNode
+    class F,H socialNode
+    class I impactNode
 ```
 
 1. **Personalized Discovery:** The user logs in and inputs their daily routine. GreenStep's ML privately calculates their CO₂ footprint and recommends exactly what they need to do to offset it (e.g., "Plant 5 Trees").
