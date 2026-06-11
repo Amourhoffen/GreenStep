@@ -4,6 +4,46 @@ import toast from 'react-hot-toast';
 import { useAppStore } from '../store/appStore';
 import { fetchGlobalChallenges, fetchUserChallenges, joinUserChallenge } from '../services/firebaseService';
 
+function CountdownTimer({ targetDate }) {
+  const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
+
+  useEffect(() => {
+    if (!targetDate) return;
+    const end = targetDate.toDate ? targetDate.toDate().getTime() : new Date(targetDate).getTime();
+
+    const updateTimer = () => {
+      const now = Date.now();
+      const diff = end - now;
+      if (diff <= 0) {
+        setTimeLeft({ d: 0, h: 0, m: 0, s: 0 });
+        return;
+      }
+      setTimeLeft({
+        d: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        h: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        m: Math.floor((diff / 1000 / 60) % 60),
+        s: Math.floor((diff / 1000) % 60),
+      });
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Space Grotesk', fontSize: 13, fontWeight: 700 }}>
+      <Clock size={14} color="var(--gold)" />
+      <div style={{ display: 'flex', gap: 4 }}>
+        <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: 4 }}>{String(timeLeft.d).padStart(2, '0')}d</span>
+        <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: 4 }}>{String(timeLeft.h).padStart(2, '0')}h</span>
+        <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: 4 }}>{String(timeLeft.m).padStart(2, '0')}m</span>
+        <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: 4, color: 'var(--gold)' }}>{String(timeLeft.s).padStart(2, '0')}s</span>
+      </div>
+    </div>
+  );
+}
+
 export default function Challenges() {
   const { user } = useAppStore();
   const [challenges, setChallenges] = useState([]);
@@ -39,13 +79,7 @@ export default function Challenges() {
     toast.success(`Joined challenge! Good luck!`);
   };
 
-  const calculateDaysLeft = (targetDate) => {
-    if (!targetDate) return 0;
-    const end = targetDate.toDate ? targetDate.toDate() : new Date(targetDate);
-    const diff = end.getTime() - Date.now();
-    const days = Math.ceil(diff / (1000 * 3600 * 24));
-    return days > 0 ? days : 0;
-  };
+
 
   return (
     <div className="page-container">
@@ -77,7 +111,6 @@ export default function Challenges() {
         ) : challenges.map(challenge => {
           const isJoined = !!userChallenges[challenge.id];
           const progress = isJoined ? (userChallenges[challenge.id].progress || 0) : 0;
-          const daysLeft = calculateDaysLeft(challenge.target_date);
           
           return (
             <div key={challenge.id} className="glass-card" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -93,9 +126,9 @@ export default function Challenges() {
               <p style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.5 }}>{challenge.description}</p>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: 'var(--text-dim)' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Users size={14} /> {Math.floor(Math.random() * 500) + 100} joined</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={14} /> {daysLeft} days left</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-dim)' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Users size={14} /> {challenge.participants_count || 0} joined</span>
+              <CountdownTimer targetDate={challenge.target_date} />
             </div>
 
             {isJoined ? (

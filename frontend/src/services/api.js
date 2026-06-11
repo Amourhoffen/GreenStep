@@ -121,6 +121,17 @@ export const getLeaderboard = async () => {
   return handleResponse(res);
 };
 
+export const getEcoTasks = async () => {
+  const res = await fetch(`${API_BASE}/community/tasks`);
+  return handleResponse(res);
+};
+
+// ── Videos ───────────────────────────────────────────────────
+export const searchVideos = async (query) => {
+  const res = await fetch(`${API_BASE}/videos/search?q=${encodeURIComponent(query)}`);
+  return handleResponse(res);
+};
+
 export const getCommunityStats = async () => {
   const res = await fetch(`${API_BASE}/community/stats`);
   return handleResponse(res);

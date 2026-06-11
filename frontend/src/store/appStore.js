@@ -24,14 +24,7 @@ const DEMO_TREES = [
   { id: 't2', species: 'Peepal (Ficus religiosa)', species_common: 'Peepal', co2_kg_year: 22.6, estimated_age_years: 3, planted_at: new Date(Date.now() - 60 * 86400000), location: 'Delhi', photo_url: null },
 ];
 
-const DEMO_POSTS = [
-  { id: 'p1', user_name: 'Rajan Kumar', user_city: 'Bangalore', user_avatar: 'R', tree_species: 'Gulmohar', co2_offset_kg: 18.4, post_type: 'tree', caption: 'Planted a beautiful Gulmohar outside my office! 🌺 My flight to Pune is now offset.', likes: 47, liked_by: [], created_at: new Date(Date.now() - 3600000).toISOString(), badges: ['✈️ Flight Offset'] },
-  { id: 'p2', user_name: 'Meera Iyer', user_city: 'Chennai', user_avatar: 'M', tree_species: 'Banyan', co2_offset_kg: 28.3, post_type: 'tree', caption: 'This banyan will grow to offset 28kg CO2 every year. Small acts, big impact 💚', likes: 89, liked_by: [], created_at: new Date(Date.now() - 7200000).toISOString(), badges: ['🌳 Tree Pioneer'] },
-  { id: 'p3', user_name: 'Arjun Mehta', user_city: 'Mumbai', user_avatar: 'A', tree_species: 'Mango', co2_offset_kg: 15.8, post_type: 'tree', caption: 'Fruit + carbon offset — what a deal! 🥭 Mango tree planted in our building terrace garden.', likes: 123, liked_by: [], created_at: new Date(Date.now() - 14400000).toISOString(), badges: ['🌟 Green Streak: 7 Days'] },
-  { id: 'p4', user_name: 'Priya Verma', user_city: 'Delhi', user_avatar: 'P', tree_species: 'Neem', co2_offset_kg: 21.7, post_type: 'tree', caption: 'Neem trees are so underrated! Natural air purifier + CO2 absorber 🌱', likes: 56, liked_by: [], created_at: new Date(Date.now() - 21600000).toISOString(), badges: ['💯 100kg Offset Hero'] },
-  { id: 'p5', user_name: 'Kiran Patel', user_city: 'Ahmedabad', user_avatar: 'K', tree_species: null, co2_offset_kg: 0, post_type: 'update', caption: 'Switched to public transport this week. Saved approx 8.4kg CO2! Every choice matters 🚇', likes: 34, liked_by: [], created_at: new Date(Date.now() - 28800000).toISOString(), badges: [] },
-  { id: 'p6', user_name: 'Sneha Rao', user_city: 'Hyderabad', user_avatar: 'S', tree_species: null, co2_offset_kg: 0, post_type: 'activity', caption: 'Calculated my first carbon footprint: 6.2 kg CO2 from AC usage. Time to offset! 📊', likes: 21, liked_by: [], created_at: new Date(Date.now() - 36000000).toISOString(), badges: ['📊 First Track'] },
-];
+const DEMO_POSTS = [];
 
 export const useAppStore = create(
   persist(
@@ -52,17 +45,10 @@ export const useAppStore = create(
   trees: DEMO_TREES,
   totalCO2Offset: DEMO_TREES.reduce((s, t) => s + (t.co2_kg_year / 12) * t.estimated_age_years, 0),
 
-  // Community
-  communityPosts: DEMO_POSTS,
+  communityPosts: [],
   communityLoading: false,
   lastFetchedAt: null,
-  leaderboard: [
-    { rank: 1, name: 'Arjun Mehta', city: 'Mumbai', co2_offset: 285, trees: 12, streak: 21 },
-    { rank: 2, name: 'Meera Iyer', city: 'Chennai', co2_offset: 241, trees: 10, streak: 14 },
-    { rank: 3, name: 'Priya Sharma', city: 'Patna', co2_offset: 178, trees: 7, streak: 9 },
-    { rank: 4, name: 'Rajan Kumar', city: 'Bangalore', co2_offset: 156, trees: 6, streak: 6 },
-    { rank: 5, name: 'Kiran Patel', city: 'Ahmedabad', co2_offset: 134, trees: 5, streak: 5 },
-  ],
+  leaderboard: [],
 
   // Gamification
   weekStreak: 4,
@@ -129,10 +115,10 @@ export const useAppStore = create(
       isAuthenticated: false,
       isDemo: false,
       chatMessages: [welcomeMsg],
-      activities: DEMO_ACTIVITIES,
-      trees: DEMO_TREES,
-      totalCO2Emitted: DEMO_ACTIVITIES.reduce((s, a) => s + a.co2_kg, 0),
-      totalCO2Offset: DEMO_TREES.reduce((s, t) => s + (t.co2_kg_year / 12) * t.estimated_age_years, 0),
+      activities: [],
+      trees: [],
+      totalCO2Emitted: 0,
+      totalCO2Offset: 0,
     });
   },
 
@@ -160,8 +146,25 @@ export const useAppStore = create(
     try {
       const data = await getCommunityFeed(1);
       if (data?.posts?.length) {
+        
+        // Generate real leaderboard from community posts
+        const userStats = {};
+        data.posts.forEach(post => {
+          if (!userStats[post.user_name]) {
+            userStats[post.user_name] = { name: post.user_name, city: post.user_city || 'Earth', co2_offset: 0, trees: 0, streak: 0 };
+          }
+          userStats[post.user_name].co2_offset += (post.co2_offset_kg || 0);
+          if (post.tree_species) userStats[post.user_name].trees += 1;
+        });
+        
+        const realLeaderboard = Object.values(userStats)
+          .sort((a, b) => b.co2_offset - a.co2_offset)
+          .map((u, i) => ({ ...u, rank: i + 1 }))
+          .slice(0, 10);
+
         set({
           communityPosts: data.posts,
+          leaderboard: realLeaderboard,
           lastFetchedAt: Date.now(),
         });
       }

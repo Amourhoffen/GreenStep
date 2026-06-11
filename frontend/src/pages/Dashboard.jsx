@@ -14,25 +14,33 @@ const CATEGORY_CONFIG = {
 function StatCard({ icon: Icon, label, value, unit, color, sub }) {
   return (
     <motion.div
-      whileHover={{ y: -2 }}
-      className="glass-card"
-      style={{ padding: '22px 24px' }}
+      whileHover={{ y: -4, boxShadow: `0 12px 30px ${color}15` }}
+      className="glass-card bento-card"
+      style={{ 
+        padding: '24px', 
+        position: 'relative', overflow: 'hidden',
+        border: `1px solid ${color}20`,
+        background: `linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)`
+      }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+      <div style={{ position: 'absolute', right: -20, top: -20, width: 100, height: 100, background: `radial-gradient(circle, ${color}15 0%, transparent 70%)`, borderRadius: '50%' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <div style={{
-          width: 40, height: 40, borderRadius: 12,
-          background: `${color}18`, border: `1px solid ${color}30`,
+          width: 44, height: 44, borderRadius: 14,
+          background: `${color}15`, border: `1px solid ${color}30`,
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         }}>
-          <Icon size={20} color={color} />
+          <Icon size={22} color={color} />
         </div>
-        <span style={{ fontSize: 13, color: 'var(--text-dim)', fontWeight: 500 }}>{label}</span>
+        <span style={{ fontSize: 13, color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.02em' }}>{label}</span>
       </div>
-      <div style={{ fontSize: 32, fontWeight: 900, fontFamily: 'Space Grotesk', color, lineHeight: 1 }}>
+      <div style={{ fontSize: 36, fontWeight: 900, fontFamily: 'Space Grotesk', color, lineHeight: 1, textShadow: `0 2px 10px ${color}30` }}>
         {value}
-        <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-dim)', marginLeft: 4 }}>{unit}</span>
+        <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-dim)', marginLeft: 6 }}>{unit}</span>
       </div>
-      {sub && <div style={{ fontSize: 12, color: sub.positive ? 'var(--green-500)' : 'var(--red-400)', marginTop: 8, fontWeight: 500 }}>{sub.text}</div>}
+      {sub && <div style={{ fontSize: 13, color: sub.positive ? 'var(--green-500)' : 'var(--red-400)', marginTop: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+        {sub.text}
+      </div>}
     </motion.div>
   );
 }
@@ -166,20 +174,20 @@ export default function Dashboard() {
       )}
 
       {/* ── Carbon Score + 3 Stat Cards ── */}
-      <div className="grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr 1fr', gap: 16 }}>
+      <div className="grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr 1fr', gap: 20 }}>
 
         {/* Score card */}
-        <div className="glass-card" style={{ padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 22, minWidth: 260 }}>
+        <div className="glass-card bento-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: 24, minWidth: 260, border: '1px solid rgba(34,197,94,0.15)', background: 'linear-gradient(135deg, rgba(34,197,94,0.05) 0%, transparent 100%)' }}>
           <CarbonScoreRing score={score} />
           <div>
-            <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Carbon Score</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 6, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Carbon Score</div>
             <div style={{
-              fontSize: 16, fontWeight: 700, marginBottom: 12,
+              fontSize: 18, fontWeight: 800, marginBottom: 12,
               color: score >= 70 ? '#22c55e' : score >= 40 ? '#f59e0b' : '#ef4444',
             }}>
               {score >= 70 ? '🌟 Eco Champion' : score >= 40 ? '📈 Making Progress' : '⚠️ High Emitter'}
             </div>
-            <div style={{ display: 'flex', gap: 14, fontSize: 12, color: 'var(--text-dim)' }}>
+            <div style={{ display: 'flex', gap: 14, fontSize: 13, color: 'var(--text-dim)', fontWeight: 500 }}>
               <span>🌳 {trees.length} trees</span>
               <span>📊 {activities.length} logs</span>
             </div>

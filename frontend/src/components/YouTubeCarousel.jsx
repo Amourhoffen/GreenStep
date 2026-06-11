@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Play, ChevronLeft, ChevronRight, Video } from 'lucide-react';
+import { searchVideos } from '../services/api';
 
 const MOCK_VIDEOS = [
   { id: '1', title: '10 Ways to Reduce Your Carbon Footprint', thumbnail: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&q=80', url: 'https://youtube.com/embed/placeholder1' },
@@ -18,25 +19,15 @@ export default function YouTubeCarousel() {
 
   useEffect(() => {
     const fetchVideos = async () => {
-      const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
-      if (!apiKey || apiKey === 'YOUR_YOUTUBE_API_KEY_HERE') {
-        // Fallback to mock videos if API key is missing
-        setVideos(MOCK_VIDEOS);
-        setLoading(false);
-        return;
-      }
-
       try {
-        const query = encodeURIComponent('reduce carbon footprint climate change solutions');
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${query}&type=video&videoDuration=medium&key=${apiKey}`);
-        const data = await res.json();
+        const data = await searchVideos('reduce carbon footprint climate change solutions');
         
-        if (data.items) {
+        if (data.items && data.items.length > 0) {
           const formatted = data.items.map(item => ({
-            id: item.id.videoId,
-            title: item.snippet.title,
-            thumbnail: item.snippet.thumbnails.medium.url,
-            url: `https://www.youtube.com/embed/${item.id.videoId}`,
+            id: item.id,
+            title: item.title,
+            thumbnail: item.thumbnail,
+            url: item.url,
           }));
           setVideos(formatted);
         } else {

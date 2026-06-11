@@ -665,7 +665,13 @@ textarea.input {
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 1024px) {
-  .grid-responsive { grid-template-columns: 1fr !important; height: auto !important; min-height: auto !important; }
+  .grid-responsive {
+    grid-template-columns: 1fr !important;
+  }
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .grid-responsive { height: auto !important; min-height: auto !important; }
   .grid-responsive > div { min-height: 300px; }
   .page-padding { padding: 20px 16px !important; }
 }

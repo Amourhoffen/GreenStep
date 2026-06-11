@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Play, Filter, Zap, Info, Flame, TrendingUp } from 'lucide-react';
+import { searchVideos } from '../services/api';
 
 const MOCK_VIDEOS = [
   { id: 'EtW2rrLHs08', url: 'https://www.youtube.com/embed/EtW2rrLHs08', title: 'Climate Change 101 with Bill Nye', thumbnail: 'https://img.youtube.com/vi/EtW2rrLHs08/maxresdefault.jpg', channel: 'National Geographic', views: '2.5M views', time: '5 years ago', duration: '4:10' },
@@ -51,10 +52,8 @@ export default function Knowledge() {
       setLoading(true);
 
       try {
-        const query = encodeURIComponent(`reduce carbon footprint ${activeCategory === 'All' ? '' : activeCategory}`);
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-        const res = await fetch(`${backendUrl}/api/videos/search?q=${query}`);
-        const data = await res.json();
+        const query = `reduce carbon footprint ${activeCategory === 'All' ? '' : activeCategory}`;
+        const data = await searchVideos(query);
         
         if (data.items && data.items.length > 0) {
           const formatted = data.items.map(item => ({

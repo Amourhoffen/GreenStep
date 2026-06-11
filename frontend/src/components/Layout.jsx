@@ -208,20 +208,75 @@ export default function Layout() {
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
         background: 'var(--bg-surface)',
         borderTop: '1px solid var(--border)',
-        padding: '8px 0',
+        padding: '12px 0 20px',
         justifyContent: 'space-around',
+        boxShadow: '0 -4px 20px rgba(0,0,0,0.2)'
       }}>
-        {NAV.map(({ to, icon: Icon, label }) => (
-          <NavLink key={to} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, textDecoration: 'none' }}>
+        {NAV.filter(n => ['/dashboard', '/track', '/chat', '/profile'].includes(n.to)).map(({ to, icon: Icon, label }) => (
+          <NavLink key={to} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
             {({ isActive }) => (
               <>
-                <Icon size={20} color={isActive ? 'var(--green-400)' : 'var(--text-dim)'} />
-                <span style={{ fontSize: 10, color: isActive ? 'var(--green-400)' : 'var(--text-dim)' }}>{label.split(' ')[0]}</span>
+                <Icon size={24} color={isActive ? 'var(--green-400)' : 'var(--text-dim)'} />
+                <span style={{ fontSize: 11, color: isActive ? 'var(--green-400)' : 'var(--text-dim)', fontWeight: 600 }}>{label.split(' ')[0]}</span>
               </>
             )}
           </NavLink>
         ))}
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 110, backdropFilter: 'blur(4px)'
+            }}
+            onClick={() => setMobileOpen(false)}
+          >
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              style={{
+                position: 'absolute', top: 0, bottom: 0, left: 0, width: 280,
+                background: 'var(--bg-surface)', borderRight: '1px solid var(--border)',
+                display: 'flex', flexDirection: 'column', overflowY: 'auto'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ padding: '24px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #22c55e, #16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Leaf size={18} color="white" />
+                  </div>
+                  <div style={{ fontFamily: 'Space Grotesk', fontWeight: 800, fontSize: 18, color: 'var(--text-primary)' }}>GreenStep</div>
+                </div>
+                <button onClick={() => setMobileOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-dim)', cursor: 'pointer' }}>
+                  <X size={24} />
+                </button>
+              </div>
+              <nav style={{ padding: '16px 12px', flex: 1 }}>
+                {NAV.map(({ to, icon: Icon, label }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    onClick={() => setMobileOpen(false)}
+                    className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+                    style={{ marginBottom: 4 }}
+                  >
+                    <Icon size={18} style={{ flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>{label}</span>
+                  </NavLink>
+                ))}
+              </nav>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Main Content ── */}
       <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', paddingBottom: 80 }}>
@@ -236,7 +291,10 @@ export default function Layout() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 13, color: 'var(--text-dim)' }}>
+            <button className="mobile-nav" onClick={() => setMobileOpen(true)} style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: 0 }}>
+              <Menu size={24} />
+            </button>
+            <span style={{ fontSize: 13, color: 'var(--text-dim)' }} className="hide-on-mobile">
               {new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'long', day: 'numeric' })}
             </span>
             {isDemo && (

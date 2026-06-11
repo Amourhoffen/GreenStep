@@ -322,9 +322,9 @@ export default function Community() {
       {/* Community stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
         {[
-          { icon: TreePine, label: 'Trees Planted', value: `${2847 + totalTrees}`, color: '#22c55e' },
-          { icon: Leaf, label: 'CO₂ Offset (kg)', value: `${(51234 + totalCommunityOffset).toFixed(0)}`, color: '#4ade80' },
-          { icon: Users, label: 'Active Members', value: '2,847', color: '#60a5fa' },
+          { icon: TreePine, label: 'Trees Planted', value: `${totalTrees}`, color: '#22c55e' },
+          { icon: Leaf, label: 'CO₂ Offset (kg)', value: `${(totalCommunityOffset).toFixed(1)}`, color: '#4ade80' },
+          { icon: Users, label: 'Active Members', value: `${new Set(communityPosts.map(p => p.user_name)).size}`, color: '#60a5fa' },
         ].map(({ icon: Icon, label, value, color }) => (
           <motion.div key={label} whileHover={{ scale: 1.02 }} className="glass-card" style={{ padding: '18px', textAlign: 'center' }}>
             <Icon size={22} color={color} style={{ marginBottom: 8 }} />
