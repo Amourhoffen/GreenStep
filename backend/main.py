@@ -53,13 +53,28 @@ app.include_router(weather.router, prefix="/api/weather", tags=["Weather"])
 app.include_router(maps.router, prefix="/api/maps", tags=["Maps"])
 app.include_router(videos.router, prefix="/api/videos", tags=["Videos"])
 
-@app.get("/")
-async def root():
-    return {"message": "🌱 GreenStep API is running", "version": "1.0.0"}
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
+# Serve SPA from static directory
+if os.path.isdir("static"):
+    app.mount("/assets", StaticFiles(directory="static/assets"), name="assets")
+    
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        if full_path.startswith("api/"):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="API route not found")
+            
+        file_path = os.path.join("static", full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+            
+        return FileResponse("static/index.html")
+else:
+    @app.get("/")
+    async def root():
+        return {"message": "🌱 GreenStep API is running", "version": "1.0.0"}
 
 if __name__ == "__main__":
     import uvicorn

@@ -109,11 +109,11 @@ export const useAppStore = create(
       isAuthenticated: !!user,
       // Reset per-user data on every login
       chatMessages: [welcomeMsg],
-      activities: DEMO_ACTIVITIES,
-      trees: DEMO_TREES,
-      totalCO2Emitted: DEMO_ACTIVITIES.reduce((s, a) => s + a.co2_kg, 0),
-      totalCO2Offset: DEMO_TREES.reduce((s, t) => s + (t.co2_kg_year / 12) * t.estimated_age_years, 0),
-      weeklyEmittedKg: 6.4,
+      activities: [],
+      trees: [],
+      totalCO2Emitted: 0,
+      totalCO2Offset: 0,
+      weeklyEmittedKg: 0,
     });
   },
 
@@ -146,10 +146,10 @@ export const useAppStore = create(
         fetchUserTrees(user.uid),
       ]);
       set({
-        activities: activities.length ? activities : DEMO_ACTIVITIES,
-        trees: trees.length ? trees : DEMO_TREES,
-        totalCO2Emitted: (activities.length ? activities : DEMO_ACTIVITIES).reduce((s, a) => s + a.co2_kg, 0),
-        totalCO2Offset: (trees.length ? trees : DEMO_TREES).reduce((s, t) => s + (t.co2_kg_year / 12) * Math.max(t.estimated_age_years, 1), 0),
+        activities: activities,
+        trees: trees,
+        totalCO2Emitted: activities.reduce((s, a) => s + a.co2_kg, 0),
+        totalCO2Offset: trees.reduce((s, t) => s + (t.co2_kg_year / 12) * Math.max(t.estimated_age_years, 1), 0),
       });
     } catch (e) { console.error('fetchUserData error:', e); }
     finally { set({ loading: false }); }
