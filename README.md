@@ -111,6 +111,23 @@ graph TD
 - **Local Events Map**: RSVP to tree planting drives and beach cleanups on a live interactive map.
 - **AI Climate Advisor**: A conversational AI bot trained on authoritative IPCC data to guide users on sustainable practices.
 
+## 🌍 Real-World Impact (Current & Future)
+
+### What problem does GreenStep solve right now?
+Currently, most people are unaware of their daily carbon footprint and feel disconnected from climate action. **GreenStep bridges this gap** by converting complex carbon calculations into easy-to-understand metrics (like "how many trees offset my auto ride?"). It provides an immediate, tangible way to act (via the Gemini Tree Scanner and Local Events) and builds a community around sustainability.
+
+### What is the future vision & global impact?
+In the future, GreenStep aims to become a **Global Carbon Offset Marketplace & Smart City API**:
+- **For Individuals:** It will automate tracking by syncing with IoT devices, smart meters, and EVs, making footprint calculation invisible and effortless.
+- **For the World:** By aggregating anonymized neighborhood-level eco-data, GreenStep will help city planners and governments visualize "Green Zones" vs "High Emission Zones," enabling data-driven policies to combat climate change on a massive scale.
+
+## 🔮 Upcoming Enhancements
+
+1. **Hardware / Wearable Integration**: Auto-logging steps, cycling, and EV trips using Google Fit, Apple Health, and Strava APIs.
+2. **B2B Corporate Sustainability Dashboards**: Allowing companies to sponsor tree-planting events and track their employees' collective carbon offsets for ESG reporting.
+3. **Hyper-local Predictive AI Model**: Using satellite data and local weather APIs to predict pollution levels and recommend real-time eco-actions to users.
+4. **Blockchain-based Eco-Credits**: Tokenizing tree-planting efforts so users can trade their verified carbon offsets in a decentralized marketplace.
+
 ## 📸 Screenshots
 
 *(Add screenshots of your application here)*
