@@ -124,12 +124,13 @@ export default function TreePlanting() {
     setSaved(true);
   };
 
+  const age = result?.estimated_age_years || 0;
   const projectionData = result ? [
-    { year: 'Now', co2: 0 },
-    { year: '1 yr', co2: result['1_year_projection_kg'] || result.co2_absorption_kg_per_year },
-    { year: '3 yr', co2: (result.co2_absorption_kg_per_year || 20) * 3 },
-    { year: '5 yr', co2: result['5_year_projection_kg'] || (result.co2_absorption_kg_per_year || 20) * 5 },
-    { year: '10 yr', co2: result['10_year_projection_kg'] || (result.co2_absorption_kg_per_year || 20) * 10 },
+    { year: `Age ${age}`, co2: 0 },
+    { year: `Age ${age + 1}`, co2: result['1_year_projection_kg'] || result.co2_absorption_kg_per_year },
+    { year: `Age ${age + 3}`, co2: (result.co2_absorption_kg_per_year || 20) * 3 },
+    { year: `Age ${age + 5}`, co2: result['5_year_projection_kg'] || (result.co2_absorption_kg_per_year || 20) * 5 },
+    { year: `Age ${age + 10}`, co2: result['10_year_projection_kg'] || (result.co2_absorption_kg_per_year || 20) * 10 },
   ] : [];
 
   return (

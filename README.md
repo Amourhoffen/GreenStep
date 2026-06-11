@@ -106,6 +106,35 @@ graph TD
 
 GreenStep is designed as a complete psychological and actionable journey to turn awareness into real-world impact:
 
+```mermaid
+flowchart TD
+    %% Define Styles
+    classDef startNode fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff,rx:10,ry:10
+    classDef aiNode fill:#4c1d95,stroke:#a855f7,stroke-width:2px,color:#fff,rx:10,ry:10
+    classDef actionNode fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff,rx:10,ry:10
+    classDef socialNode fill:#1e3a8a,stroke:#60a5fa,stroke-width:2px,color:#fff,rx:10,ry:10
+    classDef impactNode fill:#064e3b,stroke:#10b981,stroke-width:3px,color:#fff,rx:10,ry:10
+
+    A[👤 User Logs In & Adds Daily Routine] :::startNode
+    B[🧠 ML Private Analysis: Calculates Footprint & Tasks] :::aiNode
+    C[🤔 User is Confused / Wants to Learn] :::startNode
+    D[💬 AI RAG Chat & Knowledge Hub Videos] :::aiNode
+    E[🌳 Scans & Plants Tree via Gemini Vision] :::actionNode
+    F[📸 Shares to GreenStep Community & LinkedIn] :::socialNode
+    G[🗺️ Uses Map, Activity Logger & Joins Local Events] :::actionNode
+    H[🏆 Earns Eco-Rewards & Gift Coupons] :::socialNode
+    I[🌍 The Ultimate Goal: CO₂ to O₂ (Life is Green!)] :::impactNode
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+```
+
 1. **Personalized Discovery:** The user logs in and inputs their daily routine. GreenStep's ML privately calculates their CO₂ footprint and recommends exactly what they need to do to offset it (e.g., "Plant 5 Trees").
 2. **AI-Guided Education:** Confused about how to start? The user chats with the **RAG-powered AI Advisor** (supporting multiple models) to understand *why* they need to plant trees. For visual learners, the **Knowledge Hub** provides curated videos highlighting the real-world climate crisis.
 3. **Action & Verification:** Motivated, the user plants a tree and uses the **Gemini Vision Tree Scanner**. The AI verifies the tree, calculates its future CO₂ offset, and explains its localized environmental benefits.
