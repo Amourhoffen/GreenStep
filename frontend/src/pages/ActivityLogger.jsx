@@ -71,16 +71,16 @@ function ResultCard({ result, onSave, saving }) {
         }}>🌡️</div>
         <div>
           <div style={{ fontSize: 36, fontWeight: 900, fontFamily: 'Space Grotesk', color: '#ef4444', lineHeight: 1 }}>
-            {result.co2_kg?.toFixed(3)} <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-dim)' }}>kg CO₂e</span>
+            {(result.calculation_breakdown?.total_co2_kg ?? result.co2_kg)?.toFixed(3)} <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-dim)' }}>kg CO₂e</span>
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 4 }}>
-            ≈ {result.equivalent_trees_monthly?.toFixed(1)} trees/month to offset
+            ≈ {(result.equivalent_trees_monthly ?? ((result.calculation_breakdown?.total_co2_kg ?? 0) / 1.814))?.toFixed(1)} trees/month to offset
             {result.annual_projection_kg > 0 && ` · ${result.annual_projection_kg} kg/year (projected)`}
           </div>
         </div>
         <div style={{ marginLeft: 'auto' }}>
-          <div className={`badge badge-${result.confidence === 'high' ? 'green' : result.confidence === 'medium' ? 'gold' : 'red'}`}>
-            {result.confidence?.toUpperCase()} CONFIDENCE
+          <div className={`badge badge-${(result.calculation_breakdown?.confidence_level?.toLowerCase()?.includes('high') || result.confidence === 'high') ? 'green' : 'gold'}`}>
+            {(result.calculation_breakdown?.confidence_level ?? result.confidence)?.toUpperCase()}
           </div>
         </div>
       </div>
@@ -111,10 +111,15 @@ function ResultCard({ result, onSave, saving }) {
       )}
 
       {/* Breakdown */}
-      {result.breakdown && (
+      {(result.calculation_breakdown || result.breakdown) && (
         <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: 10, padding: '12px 14px', border: '1px solid var(--border)', marginBottom: 14, fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 4 }}>🔬 Calculation Breakdown</div>
-          {result.breakdown}
+          {result.calculation_breakdown ? (
+            <>
+              <strong>Formula:</strong> {result.calculation_breakdown.formula}<br/>
+              <strong>Emission Factor:</strong> {result.calculation_breakdown.emission_factor_used} kg CO₂/km
+            </>
+          ) : result.breakdown}
         </div>
       )}
 
@@ -125,10 +130,10 @@ function ResultCard({ result, onSave, saving }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {result.alternatives.map((alt, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(34,197,94,0.06)', borderRadius: 8, border: '1px solid rgba(34,197,94,0.15)' }}>
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{alt.mode}</span>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{alt.type || alt.mode}</span>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, color: 'var(--green-400)', fontWeight: 600 }}>{alt.co2} kg</span>
-                  <span className="badge badge-green" style={{ fontSize: 10 }}>-{alt.saving_pct}%</span>
+                  <span style={{ fontSize: 12, color: 'var(--green-400)', fontWeight: 600 }}>{(alt.co2_kg ?? alt.co2)?.toFixed(2)} kg</span>
+                  <span className="badge badge-green" style={{ fontSize: 10 }}>-{Math.round(alt.reduction_percentage ?? alt.saving_pct)}%</span>
                 </div>
               </div>
             ))}
@@ -137,10 +142,10 @@ function ResultCard({ result, onSave, saving }) {
       )}
 
       {/* Reduction Tip */}
-      {result.reduction_tip && (
+      {(result.ai_reduction_tip || result.reduction_tip) && (
         <div style={{ background: 'rgba(34,197,94,0.08)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(34,197,94,0.2)', marginBottom: 16 }}>
           <div style={{ fontSize: 11, color: 'var(--green-500)', fontWeight: 700, marginBottom: 4 }}>💡 AI Reduction Tip</div>
-          <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{result.reduction_tip}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{result.ai_reduction_tip || result.reduction_tip}</div>
         </div>
       )}
 
