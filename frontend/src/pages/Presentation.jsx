@@ -41,6 +41,27 @@ export default function Presentation() {
             allowFullScreen="allowfullscreen" 
             allow="fullscreen"
           />
+          
+          {/* Custom Branded Overlay to Hide Canva Logo */}
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            width: '200px',
+            height: '48px',
+            background: '#000000', // Matches the dark bar
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#4ade80',
+            fontSize: '13px',
+            fontWeight: '600',
+            letterSpacing: '0.5px',
+            borderTopLeftRadius: '8px'
+          }}>
+            GreenStep Presentation
+          </div>
         </div>
         
         <div style={{ textAlign: 'center', marginTop: '20px', color: '#a1a1aa', fontSize: '14px' }}>
