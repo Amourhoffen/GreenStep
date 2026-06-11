@@ -115,15 +115,15 @@ flowchart TD
     classDef socialNode fill:#1e3a8a,stroke:#60a5fa,stroke-width:2px,color:#fff,rx:10,ry:10
     classDef impactNode fill:#064e3b,stroke:#10b981,stroke-width:3px,color:#fff,rx:10,ry:10
 
-    A[👤 User Logs In & Adds Daily Routine] :::startNode
-    B[🧠 ML Private Analysis: Calculates Footprint & Tasks] :::aiNode
-    C[🤔 User is Confused / Wants to Learn] :::startNode
-    D[💬 AI RAG Chat & Knowledge Hub Videos] :::aiNode
-    E[🌳 Scans & Plants Tree via Gemini Vision] :::actionNode
-    F[📸 Shares to GreenStep Community & LinkedIn] :::socialNode
-    G[🗺️ Uses Map, Activity Logger & Joins Local Events] :::actionNode
-    H[🏆 Earns Eco-Rewards & Gift Coupons] :::socialNode
-    I[🌍 The Ultimate Goal: CO₂ to O₂ (Life is Green!)] :::impactNode
+    A["👤 User Logs In & Adds Daily Routine"] :::startNode
+    B["🧠 ML Private Analysis: Calculates Footprint & Tasks"] :::aiNode
+    C["🤔 User is Confused / Wants to Learn"] :::startNode
+    D["💬 AI RAG Chat & Knowledge Hub Videos"] :::aiNode
+    E["🌳 Scans & Plants Tree via Gemini Vision"] :::actionNode
+    F["📸 Shares to GreenStep Community & LinkedIn"] :::socialNode
+    G["🗺️ Uses Map, Activity Logger & Joins Local Events"] :::actionNode
+    H["🏆 Earns Eco-Rewards & Gift Coupons"] :::socialNode
+    I["🌍 The Ultimate Goal: CO₂ to O₂ (Life is Green!)"] :::impactNode
 
     A --> B
     B --> C
