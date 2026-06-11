@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDocs, getDoc, query, where, orderBy, addDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, getDocs, getDoc, query, where, orderBy, addDoc } from 'firebase/firestore';
 import { db, isConfigured } from '../firebase';
 
 export const saveActivityToDB = async (userId, activity) => {
@@ -71,15 +71,15 @@ export const initializeGlobalData = async () => {
       for (const item of c) await addDoc(collection(db, 'challenges'), item);
     }
 
-    const eventsSnap = await getDocs(collection(db, 'events'));
+    const eventsSnap = await getDocs(collection(db, 'patna_events'));
     if (eventsSnap.empty) {
-      console.log('Seeding events...');
+      console.log('Seeding real events for Patna...');
       const e = [
-        { title: 'Sunday Beach Cleanup', date: 'Sun, 18 June • 07:00 AM', location: 'Juhu Beach, Mumbai', lat: 19.0988, lng: 72.8272, attendees: 145, image: 'https://images.unsplash.com/photo-1618477461853-cf6ed80fabe5?w=500&q=80', type: 'Cleanup' },
-        { title: 'Aarey Forest Tree Drive', date: 'Sat, 24 June • 09:00 AM', location: 'Aarey Colony, Mumbai', lat: 19.1437, lng: 72.8753, attendees: 89, image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=500&q=80', type: 'Planting' },
-        { title: 'Climate Action Workshop', date: 'Wed, 28 June • 05:00 PM', location: 'Bandra Kurla Complex', lat: 19.0664, lng: 72.8653, attendees: 210, image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&q=80', type: 'Workshop' }
+        { title: 'JP Ganga Path Sapling Drive', date: 'Sun, 14 June • 07:00 AM', location: 'Marine Drive, Patna', lat: 25.6253, lng: 85.1415, attendees: 450, image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=500&q=80', type: 'Planting' },
+        { title: 'Special Monsoon Cleanup', date: 'Tue, 16 June • 08:30 AM', location: 'Kankarbagh, Patna', lat: 25.6015, lng: 85.1517, attendees: 120, image: 'https://images.unsplash.com/photo-1618477461853-cf6ed80fabe5?w=500&q=80', type: 'Cleanup' },
+        { title: 'Climate Action Webinar by ADRI', date: 'Sat, 20 June • 05:00 PM', location: 'ADRI Institute, Patna', lat: 25.6111, lng: 85.1396, attendees: 300, image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&q=80', type: 'Workshop' }
       ];
-      for (const item of e) await addDoc(collection(db, 'events'), item);
+      for (const item of e) await addDoc(collection(db, 'patna_events'), item);
     }
 
     const rewardsSnap = await getDocs(collection(db, 'rewards'));
@@ -106,7 +106,7 @@ export const fetchGlobalChallenges = async () => {
 
 export const fetchGlobalEvents = async () => {
   if (!isConfigured || !db) return [];
-  const snapshot = await getDocs(collection(db, 'events'));
+  const snapshot = await getDocs(collection(db, 'patna_events'));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
@@ -141,6 +141,12 @@ export const joinUserChallenge = async (userId, challengeId) => {
   if (!isConfigured || !db || !userId) return;
   const docRef = doc(db, 'users', userId, 'challenges', challengeId);
   await setDoc(docRef, { joined_at: new Date(), progress: 0 });
+};
+
+export const leaveUserChallenge = async (userId, challengeId) => {
+  if (!isConfigured || !db || !userId) return;
+  const docRef = doc(db, 'users', userId, 'challenges', challengeId);
+  await deleteDoc(docRef);
 };
 
 export const fetchUserRewards = async (userId) => {

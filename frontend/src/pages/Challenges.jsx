@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Trophy, Target, Medal, CheckCircle2, Clock, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAppStore } from '../store/appStore';
-import { fetchGlobalChallenges, fetchUserChallenges, joinUserChallenge } from '../services/firebaseService';
+import { fetchGlobalChallenges, fetchUserChallenges, joinUserChallenge, leaveUserChallenge } from '../services/firebaseService';
 
 function CountdownTimer({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
@@ -70,13 +70,24 @@ export default function Challenges() {
     if (!user?.uid) return;
     
     if (userChallenges[id]) {
-      toast.error("You have already joined this challenge.");
-      return;
+      await leaveUserChallenge(user.uid, id);
+      setUserChallenges(prev => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setChallenges(prev => prev.map(c => 
+        c.id === id ? { ...c, participants_count: Math.max(0, (c.participants_count || 0) - 1) } : c
+      ));
+      toast.success("Left the challenge.");
+    } else {
+      await joinUserChallenge(user.uid, id);
+      setUserChallenges(prev => ({ ...prev, [id]: { progress: 0 } }));
+      setChallenges(prev => prev.map(c => 
+        c.id === id ? { ...c, participants_count: (c.participants_count || 0) + 1 } : c
+      ));
+      toast.success(`Joined challenge! Good luck!`);
     }
-
-    await joinUserChallenge(user.uid, id);
-    setUserChallenges(prev => ({ ...prev, [id]: { progress: 0 } }));
-    toast.success(`Joined challenge! Good luck!`);
   };
 
 

@@ -26,8 +26,8 @@ except Exception as e:
 _text_model = None
 _vision_model = None
 
-# Use gemini-2.0-flash (current supported model)
-MODEL_NAME = "gemini-2.0-flash"
+# Use gemini-1.5-flash
+MODEL_NAME = "gemini-1.5-flash"
 
 def get_text_model():
     global _text_model

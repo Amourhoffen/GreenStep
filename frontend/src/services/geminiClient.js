@@ -15,7 +15,7 @@ function getModel() {
   if (_model) return _model;
   try {
     _genAI = new GoogleGenerativeAI(API_KEY);
-    _model = _genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    _model = _genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     return _model;
   } catch (e) {
     console.warn('[GeminiClient] Failed to initialize model:', e.message);

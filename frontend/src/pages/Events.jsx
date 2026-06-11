@@ -6,7 +6,7 @@ import { fetchGlobalEvents, fetchUserEvents, rsvpUserEvent } from '../services/f
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
 
 const mapContainerStyle = { width: '100%', height: '100%' };
-const defaultCenter = { lat: 19.0760, lng: 72.8777 }; // Mumbai default
+const defaultCenter = { lat: 25.5941, lng: 85.1376 }; // Patna default
 
 export default function Events() {
   const { user } = useAppStore();
@@ -54,7 +54,7 @@ export default function Events() {
           <p className="page-subtitle">Join climate action events, cleanups, and workshops happening near you.</p>
         </div>
         <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 12 }}>
-          <MapPin size={18} /> Change City (Mumbai)
+          <MapPin size={18} /> Change City (Patna)
         </button>
       </div>
 

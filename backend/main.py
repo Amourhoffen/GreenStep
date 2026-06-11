@@ -44,6 +44,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi import Request
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    response.headers["Cross-Origin-Embedder-Policy"] = "unsafe-none"
+    return response
+
 # Routers
 app.include_router(activities.router, prefix="/api/activities", tags=["Activities"])
 app.include_router(trees.router, prefix="/api/trees", tags=["Trees"])

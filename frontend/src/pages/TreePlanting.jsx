@@ -101,7 +101,7 @@ export default function TreePlanting() {
       estimated_age_years: result.estimated_age_years,
       planted_at: new Date(),
       location,
-      photo_url: imagePreview,
+      photo_url: null, // Removed to avoid Firebase 1MB limit
       impact_story: result.impact_story,
     };
     addTree(tree);
@@ -116,7 +116,7 @@ export default function TreePlanting() {
       likes: 0,
       created_at: new Date(),
       badges: ['🌱 New Planter'],
-      photo_url: imagePreview,
+      photo_url: null,
     };
     addCommunityPost(post);
 
