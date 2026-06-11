@@ -14,6 +14,7 @@ import Onboarding from './pages/Onboarding';
 import Challenges from './pages/Challenges';
 import Rewards from './pages/Rewards';
 import Events from './pages/Events';
+import JourneyCalculator from './pages/JourneyCalculator';
 import { useAppStore } from './store/appStore';
 import { auth, isConfigured } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -78,6 +79,7 @@ export default function App() {
           <Route path="knowledge" element={<Knowledge />} />
           <Route path="challenges" element={<Challenges />} />
           <Route path="rewards" element={<Rewards />} />
+          <Route path="journey" element={<JourneyCalculator />} />
           <Route path="events" element={<Events />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="profile" element={<Profile />} />

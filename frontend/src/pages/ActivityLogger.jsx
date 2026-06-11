@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAppStore } from '../store/appStore';
 import { calculateCO2 } from '../services/api';
 import toast from 'react-hot-toast';
 import { Car, Utensils, Zap, ShoppingBag, Loader2, CheckCircle, Plus } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const TABS = [
   { id: 'transport', icon: Car, label: 'Transport', emoji: '🚗' },
@@ -53,10 +54,67 @@ const SHOPPING_ITEMS = [
   { value: 'books', label: '📚 Books (paper)', co2: 2.5 },
 ];
 
-function ResultCard({ result, onSave, saving }) {
+function ResultCard({ result, onSave, saving, lastPayload }) {
+  const cardRef = useRef(null);
+
   if (!result) return null;
+
+  const handleShare = async () => {
+    if (!cardRef.current) return;
+    const toastId = toast.loading('Generating image...');
+    
+    try {
+      // Temporarily hide buttons for the screenshot
+      const buttonsDiv = cardRef.current.querySelector('.action-buttons');
+      if (buttonsDiv) buttonsDiv.style.display = 'none';
+
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: '#0f1714',
+        scale: 2,
+        useCORS: true,
+      });
+
+      if (buttonsDiv) buttonsDiv.style.display = 'flex';
+
+      canvas.toBlob(async (blob) => {
+        toast.dismiss(toastId);
+        if (!blob) {
+          toast.error('Failed to generate image');
+          return;
+        }
+
+        const file = new File([blob], 'greenstep_activity.png', { type: 'image/png' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'My GreenStep Activity',
+              text: `I just calculated my carbon footprint using GreenStep! 🌿`,
+              files: [file]
+            });
+          } catch (err) {
+            console.log('Share sheet dismissed or failed', err);
+          }
+        } else {
+          // Fallback to download
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'greenstep_activity.png';
+          link.click();
+          URL.revokeObjectURL(url);
+          toast.success('Image downloaded! You can now share it.');
+        }
+      }, 'image/png');
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error('Error creating image');
+      console.error(err);
+    }
+  };
+
   return (
-    <div className="glass-card animate-fade-up" style={{
+    <div className="glass-card animate-fade-up" ref={cardRef} style={{
       padding: '24px', marginTop: 20,
       border: '1px solid rgba(34,197,94,0.3)',
       background: 'rgba(34,197,94,0.04)',
@@ -156,7 +214,7 @@ function ResultCard({ result, onSave, saving }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="action-buttons" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <button
           className="btn-primary"
           onClick={onSave}
@@ -172,13 +230,30 @@ function ResultCard({ result, onSave, saving }) {
             onClick={async () => {
               const storeState = useAppStore.getState();
               const userName = storeState.user?.displayName || storeState.user?.email?.split('@')[0] || 'Green Earthling';
+              
+              // Map activity data to the structure the feed expects
+              const activityData = {
+                category: lastPayload.category,
+                activity_type: lastPayload.activity_type,
+                co2_kg: result.calculation_breakdown?.total_co2_kg ?? result.co2_kg,
+                confidence: result.calculation_breakdown?.confidence_level ?? result.confidence,
+                trees_monthly: result.equivalent_trees_monthly ?? ((result.calculation_breakdown?.total_co2_kg ?? result.co2_kg) / 1.814),
+                alternatives: result.alternatives || [],
+                reduction_tip: result.ai_reduction_tip || result.reduction_tip,
+                distance_km: result.calculation_breakdown?.distance_km,
+                vehicle_label: lastPayload.details?.vehicle,
+                from: lastPayload.details?.from,
+                to: lastPayload.details?.to,
+              };
+
               const newPost = {
                 id: `p_${Date.now()}`,
                 user_name: userName,
                 user_city: 'India',
                 user_avatar: userName.charAt(0).toUpperCase(),
-                caption: `I just tracked my CO₂ footprint! It was ${result.co2_kg.toFixed(2)} kg CO₂e.\n\n${result.reduction_tip ? '💡 Tip: ' + result.reduction_tip : ''}`,
-                post_type: 'update',
+                caption: `Logged a ${lastPayload.category} activity! 🌱`,
+                post_type: 'tracked_activity',
+                activity_data: activityData,
                 likes: 0, liked_by: [], comments: [], badges: ['🌿 Activity Tracked'], created_at: new Date().toISOString()
               };
               await storeState.addCommunityPost(newPost);
@@ -197,17 +272,7 @@ function ResultCard({ result, onSave, saving }) {
           </button>
 
           <button
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: 'My GreenStep Activity',
-                  text: `I just calculated my carbon footprint using GreenStep! It was ${result.co2_kg.toFixed(2)} kg CO₂e. 🌿\n\n${result.reduction_tip ? '💡 Tip: ' + result.reduction_tip : ''}`,
-                  url: window.location.origin
-                }).catch(err => console.log('Error sharing', err));
-              } else {
-                toast.error('Sharing not supported on this device');
-              }
-            }}
+            onClick={handleShare}
             style={{ 
               flex: 1, padding: '12px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', 
               border: '1px solid var(--border)', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -478,7 +543,7 @@ export default function ActivityLogger() {
         </button>
       </div>
 
-      <ResultCard result={result} onSave={handleSave} saving={saving} />
+      <ResultCard result={result} onSave={handleSave} saving={saving} lastPayload={lastPayload} />
     </div>
   );
 }

@@ -2,19 +2,36 @@
 HuggingFace Inference Service — Free LLMs for GreenStep
 Uses huggingface_hub InferenceClient with the free serverless Inference API.
 
+Retry & Fallback Strategy (NEW):
+  1. Try HF inference up to MAX_RETRIES times with exponential back-off.
+  2. If all retries fail → silently call Gemini fallback.
+  3. User NEVER sees the ugly red error box — they get a response from Gemini
+     and a small "(via Gemini fallback)" badge is set in the response dict.
+
 Free models used:
-  - mistralai/Mistral-7B-Instruct-v0.3  (default, best quality)
-  - HuggingFaceH4/zephyr-7b-beta        (fast, good for chat)
-  - microsoft/Phi-3-mini-4k-instruct     (tiny, very fast)
-  - google/gemma-2-2b-it                 (Google's lightweight model)
+  - meta-llama/Llama-3.1-8B-Instruct    (default, best quality)
+  - Qwen/Qwen2.5-72B-Instruct            (powerful, great for climate queries)
+  - deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+  - google/gemma-3-27b-it
+
+Groq models (NEW — 100% free, 200+ tokens/sec):
+  - llama3-8b-8192       (Llama 3 8B on Groq)
+  - llama-3.3-70b-versatile  (Llama 3.3 70B on Groq — BEST)
+  - gemma2-9b-it         (Google Gemma 2 9B on Groq)
 """
 import os
 import asyncio
+import logging
 from typing import Optional
 
-HF_TOKEN = os.getenv("HF_TOKEN", "").strip()
+logger = logging.getLogger(__name__)
 
-# Available free models with metadata
+HF_TOKEN   = os.getenv("HF_TOKEN", "").strip()
+GROQ_KEY   = os.getenv("GROQ_API_KEY", "").strip()
+MAX_RETRIES = 2          # number of HF retry attempts
+RETRY_DELAY = 1.5        # seconds between retries
+
+# ─── HuggingFace Models ───────────────────────────────────────────────────────
 HF_MODELS = {
     "llama-3-8b": {
         "id": "meta-llama/Llama-3.1-8B-Instruct",
@@ -50,6 +67,34 @@ HF_MODELS = {
     },
 }
 
+# ─── Groq Models (NEW) ────────────────────────────────────────────────────────
+GROQ_MODELS = {
+    "groq-llama3-70b": {
+        "id": "llama-3.3-70b-versatile",
+        "label": "Llama 3.3 70B (Groq)",
+        "provider": "Groq Cloud",
+        "description": "Lightning-fast 70B model — 200+ tokens/sec, completely free",
+        "icon": "⚡",
+        "max_tokens": 1024,
+    },
+    "groq-llama3-8b": {
+        "id": "llama3-8b-8192",
+        "label": "Llama 3 8B (Groq)",
+        "provider": "Groq Cloud",
+        "description": "Ultra-fast inference on Groq hardware",
+        "icon": "🚀",
+        "max_tokens": 1024,
+    },
+    "groq-gemma2": {
+        "id": "gemma2-9b-it",
+        "label": "Gemma 2 9B (Groq)",
+        "provider": "Groq Cloud",
+        "description": "Google Gemma 2 9B running on Groq — very fast",
+        "icon": "💨",
+        "max_tokens": 1024,
+    },
+}
+
 GREENSTEP_SYSTEM_PROMPT = """You are GreenStep's AI climate advisor. You help Indian users understand and reduce their carbon footprint.
 
 CRITICAL IDENTITY INFORMATION:
@@ -73,26 +118,90 @@ Rules:
 
 
 def _build_messages(user_question: str, context: str, history: list) -> list:
-    """Build messages list for HF chat completion."""
+    """Build messages list for chat completion."""
     messages = [{"role": "system", "content": GREENSTEP_SYSTEM_PROMPT}]
-    
     if context and len(context) > 50:
         messages.append({
             "role": "system",
             "content": f"Relevant knowledge base context:\n{context[:1500]}"
         })
-    
-    # Add conversation history
     for msg in history[-6:]:
         messages.append({
             "role": msg.get("role", "user"),
             "content": msg.get("content", "")
         })
-    
     messages.append({"role": "user", "content": user_question})
     return messages
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Internal: single HF attempt (no retry)
+# ─────────────────────────────────────────────────────────────────────────────
+async def _try_hf_once(messages: list, model_id: str, max_tokens: int) -> str:
+    """Single HuggingFace inference attempt. Raises on failure."""
+    from huggingface_hub import InferenceClient
+
+    client = InferenceClient(
+        token=HF_TOKEN if HF_TOKEN else None,
+        timeout=30,
+    )
+    loop = asyncio.get_event_loop()
+    response = await loop.run_in_executor(
+        None,
+        lambda: client.chat_completion(
+            model=model_id,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=0.7,
+            stream=False,
+        )
+    )
+    return response.choices[0].message.content.strip()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Internal: single Groq attempt  (uses official groq SDK)
+# ─────────────────────────────────────────────────────────────────────────────
+async def _try_groq_once(messages: list, model_id: str, max_tokens: int) -> str:
+    """Single Groq inference attempt using official AsyncGroq client."""
+    try:
+        from groq import AsyncGroq  # official SDK — pip install groq
+    except ImportError:
+        raise RuntimeError(
+            "groq package not installed. Add 'groq>=0.9.0' to requirements.txt "
+            "and redeploy."
+        )
+
+    client = AsyncGroq(api_key=GROQ_KEY)
+    chat_completion = await client.chat.completions.create(
+        model=model_id,
+        messages=messages,
+        max_tokens=max_tokens,
+        temperature=0.7,
+    )
+    return chat_completion.choices[0].message.content.strip()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Internal: Gemini silent fallback
+# ─────────────────────────────────────────────────────────────────────────────
+async def _gemini_fallback(user_question: str, retrieved_context: str, history: list) -> str:
+    """Call Gemini silently. Returns empty string on failure."""
+    try:
+        from services.gemini_service import generate_rag_response
+        return await generate_rag_response(
+            user_question=user_question,
+            retrieved_context=retrieved_context,
+            conversation_history=history,
+        )
+    except Exception as e:
+        logger.warning(f"[GreenStep] Gemini fallback also failed: {e}")
+        return ""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PUBLIC: generate_hf_response  (with retry + silent Gemini fallback)
+# ─────────────────────────────────────────────────────────────────────────────
 async def generate_hf_response(
     user_question: str,
     retrieved_context: str = "",
@@ -101,56 +210,159 @@ async def generate_hf_response(
 ) -> dict:
     """
     Generate a response using HuggingFace Inference API (free tier).
-    Returns dict with 'response', 'model', 'provider' keys.
+
+    Retry logic:
+      - Attempts up to MAX_RETRIES times with RETRY_DELAY seconds between each.
+      - On total HF failure → silently falls back to Gemini.
+      - User always gets a response, never a raw error.
+
+    Returns dict with 'response', 'model', 'provider', 'icon', and optional
+    'fallback_used' = True when Gemini answered instead of HF.
     """
     model_info = HF_MODELS.get(model_key, HF_MODELS["llama-3-8b"])
-    model_id = model_info["id"]
-    
-    messages = _build_messages(user_question, retrieved_context, conversation_history)
+    model_id   = model_info["id"]
+    messages   = _build_messages(user_question, retrieved_context, conversation_history)
 
-    try:
-        from huggingface_hub import InferenceClient
-        
-        client = InferenceClient(
-            token=HF_TOKEN if HF_TOKEN else None,
-            timeout=30,
-        )
-        
-        # Run blocking call in thread pool
-        loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(
-            None,
-            lambda: client.chat_completion(
-                model=model_id,
-                messages=messages,
-                max_tokens=model_info["max_tokens"],
-                temperature=0.7,
-                stream=False,
-            )
-        )
-        
-        text = response.choices[0].message.content.strip()
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            logger.info(f"[HF] Attempt {attempt}/{MAX_RETRIES} — model={model_id}")
+            text = await _try_hf_once(messages, model_id, model_info["max_tokens"])
+            return {
+                "response": text,
+                "model": model_info["label"],
+                "model_key": model_key,
+                "provider": model_info["provider"],
+                "icon": model_info["icon"],
+                "fallback_used": False,
+            }
+        except Exception as e:
+            last_error = e
+            logger.warning(f"[HF] Attempt {attempt} failed: {e}")
+            if attempt < MAX_RETRIES:
+                await asyncio.sleep(RETRY_DELAY * attempt)  # 1.5s, 3s
+
+    # ── All HF retries exhausted → silent Gemini fallback ────────────────────
+    logger.warning(f"[HF] All {MAX_RETRIES} retries failed. Engaging Gemini fallback.")
+    gemini_text = await _gemini_fallback(user_question, retrieved_context, conversation_history)
+
+    if gemini_text:
         return {
-            "response": text,
-            "model": model_info["label"],
+            "response": gemini_text,
+            "model": f"{model_info['label']} → Gemini 2.0 Flash",
             "model_key": model_key,
-            "provider": model_info["provider"],
-            "icon": model_info["icon"],
+            "provider": "Gemini (auto-fallback)",
+            "icon": "✨",
+            "fallback_used": True,
         }
-        
-    except ImportError:
-        raise RuntimeError("huggingface_hub not installed. Run: pip install huggingface-hub")
-    except Exception as e:
-        error_msg = str(e)
-        # Provide a helpful fallback for rate limits
-        if "rate limit" in error_msg.lower() or "429" in error_msg:
-            raise RuntimeError(
-                f"HuggingFace free tier rate limit reached. "
-                f"Add HF_TOKEN in .env for higher limits. Error: {error_msg}"
-            )
-        raise RuntimeError(f"HuggingFace inference failed: {error_msg}")
+
+    # ── Both HF and Gemini failed — return graceful message ──────────────────
+    return {
+        "response": (
+            "I'm experiencing high demand right now and couldn't reach the AI models. "
+            "Please try again in a few seconds, or switch to **Gemini** from the model selector "
+            "for an instant response. 🌿"
+        ),
+        "model": "Unavailable",
+        "model_key": model_key,
+        "provider": "None",
+        "icon": "⏳",
+        "fallback_used": True,
+        "error": True,
+    }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# PUBLIC: generate_groq_response (NEW — Groq Cloud, 100% free)
+# ─────────────────────────────────────────────────────────────────────────────
+async def generate_groq_response(
+    user_question: str,
+    retrieved_context: str = "",
+    conversation_history: list = [],
+    model_key: str = "groq-llama3-70b",
+) -> dict:
+    """
+    Generate a response using Groq Cloud API (free, 200+ tokens/sec).
+    Uses the official `groq` Python SDK (AsyncGroq).
+    Falls back to Gemini silently if Groq fails.
+    Requires GROQ_API_KEY in backend/.env
+      → Get a FREE key at https://console.groq.com → API Keys → Create key
+    """
+    if not GROQ_KEY:
+        # Don't silently fall to Gemini when the user explicitly picked Groq;
+        # return a friendly message telling them exactly what to do.
+        return {
+            "response": (
+                "⚡ **Groq API key not configured.**\n\n"
+                "Groq is 100% free and gives you 200+ tokens/sec on Llama 3.3 70B.\n\n"
+                "**Setup in 2 minutes:**\n"
+                "1. Visit [console.groq.com](https://console.groq.com) and sign up (free)\n"
+                "2. Go to **API Keys → Create API Key**\n"
+                "3. Copy the key (starts with `gsk_...`)\n"
+                "4. Add `GROQ_API_KEY=gsk_...` to `backend/.env`\n"
+                "5. Redeploy the backend\n\n"
+                "Meanwhile, switch to **Gemini** or another model from the selector. 🌿"
+            ),
+            "model": "Groq (not configured)",
+            "model_key": model_key,
+            "provider": "Groq Cloud",
+            "icon": "⚡",
+            "fallback_used": False,
+            "needs_setup": True,
+        }
+
+    model_info = GROQ_MODELS.get(model_key, GROQ_MODELS["groq-llama3-70b"])
+    messages   = _build_messages(user_question, retrieved_context, conversation_history)
+
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            logger.info(f"[Groq] Attempt {attempt}/{MAX_RETRIES} — model={model_info['id']}")
+            text = await _try_groq_once(messages, model_info["id"], model_info["max_tokens"])
+            return {
+                "response": text,
+                "model": model_info["label"],
+                "model_key": model_key,
+                "provider": model_info["provider"],
+                "icon": model_info["icon"],
+                "fallback_used": False,
+            }
+        except Exception as e:
+            last_error = e
+            logger.warning(f"[Groq] Attempt {attempt} failed: {e}")
+            if attempt < MAX_RETRIES:
+                await asyncio.sleep(RETRY_DELAY * attempt)
+
+    # Groq failed after retries → silent Gemini fallback
+    logger.warning(f"[Groq] All retries failed ({last_error}). Engaging Gemini fallback.")
+    gemini_text = await _gemini_fallback(user_question, retrieved_context, conversation_history)
+
+    if gemini_text:
+        return {
+            "response": gemini_text,
+            "model": f"{model_info['label']} → Gemini 2.0 Flash",
+            "model_key": model_key,
+            "provider": "Gemini (auto-fallback)",
+            "icon": "✨",
+            "fallback_used": True,
+        }
+
+    return {
+        "response": (
+            "All AI services are currently at capacity. Please try again in a moment. 🌿"
+        ),
+        "model": "Unavailable",
+        "model_key": model_key,
+        "provider": "None",
+        "icon": "⏳",
+        "fallback_used": True,
+        "error": True,
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Vision analysis (unchanged logic, added retry)
+# ─────────────────────────────────────────────────────────────────────────────
 async def analyze_tree_photo_hf(
     image_base64: str,
     location: str,
@@ -185,72 +397,81 @@ Return ONLY valid JSON (no markdown tags):
   "care_tip": "<care tip for this climate>"
 }}"""
 
-    try:
-        from huggingface_hub import InferenceClient
-        import json
-        import re
-        
-        client = InferenceClient(
-            token=HF_TOKEN if HF_TOKEN else None,
-            timeout=45,
-        )
-        
-        # Format the image correctly for the VLM API
-        image_url = f"data:image/jpeg;base64,{image_base64}"
-        
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": image_url}}
-                ]
-            }
-        ]
-        
-        loop = asyncio.get_event_loop()
-        response = await loop.run_in_executor(
-            None,
-            lambda: client.chat_completion(
-                model="Qwen/Qwen2.5-VL-72B-Instruct",
-                messages=messages,
-                max_tokens=800,
-            )
-        )
-        
-        text = response.choices[0].message.content.strip()
-        
-        # Try direct parse
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
         try:
-            return json.loads(text)
-        except Exception:
-            pass
-            
-        # Try extracting JSON block
-        match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
-        if match:
-            return json.loads(match.group(1))
-            
-        # Try extracting first {}
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-        if match:
-            return json.loads(match.group(0))
-            
-        raise ValueError("Could not parse JSON from response")
-        
-    except Exception as e:
-        raise RuntimeError(f"HF Vision failed: {str(e)}")
+            from huggingface_hub import InferenceClient
+            import json
+            import re
+
+            client = InferenceClient(
+                token=HF_TOKEN if HF_TOKEN else None,
+                timeout=45,
+            )
+            image_url = f"data:image/jpeg;base64,{image_base64}"
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": image_url}}
+                    ]
+                }
+            ]
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: client.chat_completion(
+                    model="Qwen/Qwen2.5-VL-72B-Instruct",
+                    messages=messages,
+                    max_tokens=800,
+                )
+            )
+            text = response.choices[0].message.content.strip()
+
+            try:
+                return json.loads(text)
+            except Exception:
+                pass
+            match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+            if match:
+                return json.loads(match.group(1))
+            match = re.search(r"\{.*\}", text, re.DOTALL)
+            if match:
+                return json.loads(match.group(0))
+            raise ValueError("Could not parse JSON from response")
+
+        except Exception as e:
+            last_error = e
+            logger.warning(f"[HF Vision] Attempt {attempt} failed: {e}")
+            if attempt < MAX_RETRIES:
+                await asyncio.sleep(RETRY_DELAY * attempt)
+
+    raise RuntimeError(f"HF Vision failed after {MAX_RETRIES} retries: {last_error}")
 
 
 def get_available_models() -> list:
-    """Return list of available HF models with metadata."""
-    return [
+    """Return list of available HF + Groq models with metadata."""
+    models = [
         {
             "key": k,
             "label": v["label"],
             "provider": v["provider"],
             "description": v["description"],
             "icon": v["icon"],
+            "backend": "huggingface",
         }
         for k, v in HF_MODELS.items()
     ]
+    groq_models = [
+        {
+            "key": k,
+            "label": v["label"],
+            "provider": v["provider"],
+            "description": v["description"],
+            "icon": v["icon"],
+            "backend": "groq",
+        }
+        for k, v in GROQ_MODELS.items()
+    ]
+    return models + groq_models

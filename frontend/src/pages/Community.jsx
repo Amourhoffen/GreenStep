@@ -17,10 +17,89 @@ function timeAgo(date) {
 }
 
 const POST_TYPE_CONFIG = {
-  tree:     { icon: '🌳', label: 'Tree Planted', cls: 'post-type-tree', bg: 'rgba(34,197,94,0.08)' },
-  activity: { icon: '📊', label: 'Activity Logged', cls: 'post-type-activity', bg: 'rgba(96,165,250,0.08)' },
-  update:   { icon: '💬', label: 'Green Update', cls: 'post-type-update', bg: 'rgba(167,139,250,0.08)' },
+  tree:             { icon: '🌳', label: 'Tree Planted', cls: 'post-type-tree', bg: 'rgba(34,197,94,0.08)' },
+  activity:         { icon: '📊', label: 'Activity Logged', cls: 'post-type-activity', bg: 'rgba(96,165,250,0.08)' },
+  tracked_activity: { icon: '📊', label: 'Activity Logged', cls: 'post-type-activity', bg: 'rgba(96,165,250,0.08)' },
+  update:           { icon: '💬', label: 'Green Update', cls: 'post-type-update', bg: 'rgba(167,139,250,0.08)' },
 };
+
+const CATEGORY_ICONS = {
+  transport: '🚗',
+  food: '🥗',
+  energy: '⚡',
+  shopping: '🛍'
+};
+
+function ActivityDataCard({ data }) {
+  if (!data) return null;
+  const isHighConf = data.confidence?.toLowerCase().includes('high');
+  
+  return (
+    <div style={{
+      background: 'rgba(34,197,94,0.04)',
+      border: '1px solid rgba(34,197,94,0.3)',
+      borderRadius: 16,
+      padding: 16,
+      marginTop: 8,
+      marginBottom: 14
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: 14,
+          background: 'rgba(239,68,68,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 24, border: '1px solid rgba(239,68,68,0.2)',
+        }}>🌡️</div>
+        <div>
+          <div style={{ fontSize: 28, fontWeight: 900, fontFamily: 'Space Grotesk', color: '#ef4444', lineHeight: 1 }}>
+            {data.co2_kg?.toFixed(2)} <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-dim)' }}>kg CO₂e</span>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>
+            {CATEGORY_ICONS[data.category] || '🌱'} {data.activity_type}
+            {data.trees_monthly && ` · ≈ ${data.trees_monthly.toFixed(1)} trees to offset`}
+          </div>
+        </div>
+        {data.confidence && (
+          <div style={{ marginLeft: 'auto' }}>
+            <div className={`badge badge-${isHighConf ? 'green' : 'gold'}`} style={{ fontSize: 9, padding: '2px 6px' }}>
+              {data.confidence.toUpperCase()}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {data.distance_km && (
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <MapPin size={12} /> {data.from} → {data.to} · {data.vehicle_label} ({data.distance_km} km)
+        </div>
+      )}
+
+      {data.alternatives?.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-dim)', marginBottom: 6 }}>Better alternatives</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {data.alternatives.map((alt, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(34,197,94,0.06)', borderRadius: 6, border: '1px solid rgba(34,197,94,0.15)' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{alt.type || alt.mode}</span>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <span style={{ fontSize: 11, color: 'var(--green-400)', fontWeight: 600 }}>{(alt.co2_kg ?? alt.co2)?.toFixed(2)} kg</span>
+                  <span className="badge badge-green" style={{ fontSize: 9 }}>-{Math.round(alt.reduction_percentage ?? alt.saving_pct)}%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {data.reduction_tip && (
+        <div style={{ background: 'rgba(34,197,94,0.08)', borderRadius: 8, padding: '10px 12px', border: '1px solid rgba(34,197,94,0.2)' }}>
+          <div style={{ fontSize: 10, color: 'var(--green-500)', fontWeight: 700, marginBottom: 2 }}>💡 Tip</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{data.reduction_tip}</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function PostCard({ post, onLike, onShare, onComment, onImageClick, onDelete, currentUser }) {
   const [likeAnim, setLikeAnim] = useState(false);
@@ -104,9 +183,14 @@ function PostCard({ post, onLike, onShare, onComment, onImageClick, onDelete, cu
       </div>
 
       {/* Caption (Markdown support) */}
-      <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 14 }} className="markdown-content">
+      <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: post.post_type === 'tracked_activity' ? 4 : 14 }} className="markdown-content">
         <ReactMarkdown>{post.caption}</ReactMarkdown>
       </div>
+
+      {/* Dynamic Activity Card for Tracked Activities */}
+      {post.post_type === 'tracked_activity' && post.activity_data && (
+        <ActivityDataCard data={post.activity_data} />
+      )}
 
       {/* Uploaded Photo */}
       {post.photo_url && (

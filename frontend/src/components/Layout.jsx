@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../store/appStore';
 import {
   LayoutDashboard, Activity, TreePine, Users, MessageCircle,
-  Menu, X, Leaf, ChevronRight, ChevronLeft, Settings, LogOut, User as UserIcon, Flame
+  Menu, X, Leaf, ChevronRight, ChevronLeft, Settings, LogOut, User as UserIcon, Flame, Car
 } from 'lucide-react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
@@ -13,6 +13,7 @@ import { BookOpen, Target, Gift, MapPin } from 'lucide-react';
 const NAV = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/track', icon: Activity, label: 'Track Activity' },
+  { to: '/journey', icon: Car, label: 'Journey Calculator' },
   { to: '/plant', icon: TreePine, label: 'Plant a Tree' },
   { to: '/community', icon: Users, label: 'Community' },
   { to: '/challenges', icon: Target, label: 'Challenges' },
