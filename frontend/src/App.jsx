@@ -15,6 +15,7 @@ import Challenges from './pages/Challenges';
 import Rewards from './pages/Rewards';
 import Events from './pages/Events';
 import JourneyCalculator from './pages/JourneyCalculator';
+import Presentation from './pages/Presentation';
 import { useAppStore } from './store/appStore';
 import { auth, isConfigured } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -66,6 +67,9 @@ export default function App() {
         }}
       />
       <Routes>
+        {/* Public Pitch Deck Route */}
+        <Route path="/presentation" element={<Presentation />} />
+
         <Route path="/login" element={!isAuthenticated ? <Login /> : (hasCompletedOnboarding ? <Navigate to="/dashboard" replace /> : <Navigate to="/onboarding" replace />)} />
         
         <Route path="/onboarding" element={isAuthenticated && !hasCompletedOnboarding ? <Onboarding /> : <Navigate to="/dashboard" replace />} />
