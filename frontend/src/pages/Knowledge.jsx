@@ -274,55 +274,51 @@ export default function Knowledge() {
       )}
 
       {/* Video Player Modal */}
-      <AnimatePresence>
-        {playingVideo && createPortal(
+      {playingVideo && createPortal(
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+          }} 
+          onClick={() => setPlayingVideo(null)}
+        >
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed', inset: 0, zIndex: 9999,
-              background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
-            }} 
-            onClick={() => setPlayingVideo(null)}
+            initial={{ scale: 0.8, opacity: 0, y: 30 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            style={{ width: '100%', maxWidth: 1000, position: 'relative', aspectRatio: '16/9', background: '#000', borderRadius: 16, overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)' }}
+            onClick={e => e.stopPropagation()}
           >
-            <motion.div 
-              initial={{ scale: 0.8, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 30 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              style={{ width: '100%', maxWidth: 1000, position: 'relative', aspectRatio: '16/9', background: '#000', borderRadius: 16, overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)' }}
-              onClick={e => e.stopPropagation()}
+            <button 
+              onClick={() => setPlayingVideo(null)}
+              style={{
+                position: 'absolute', top: 16, right: 16,
+                background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%',
+                width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'white', zIndex: 10, transition: 'all 0.2s'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.8)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.6)'; e.currentTarget.style.transform = 'scale(1)'; }}
             >
-              <button 
-                onClick={() => setPlayingVideo(null)}
-                style={{
-                  position: 'absolute', top: 16, right: 16,
-                  background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%',
-                  width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', color: 'white', zIndex: 10, transition: 'all 0.2s'
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.8)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.6)'; e.currentTarget.style.transform = 'scale(1)'; }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </button>
-              {playingVideo.url && (
-                <iframe
-                  src={`${playingVideo.url}?autoplay=1`}
-                  title="YouTube video player"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  style={{ width: '100%', height: '100%', border: 'none' }}
-                />
-              )}
-            </motion.div>
-          </motion.div>,
-          document.body
-        )}
-      </AnimatePresence>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            {playingVideo.url && (
+              <iframe
+                src={`${playingVideo.url}?autoplay=1`}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{ width: '100%', height: '100%', border: 'none' }}
+              />
+            )}
+          </motion.div>
+        </motion.div>,
+        document.body
+      )}
 
       <style>{`
         @keyframes pulse {
