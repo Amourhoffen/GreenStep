@@ -276,17 +276,19 @@ function MessageBubble({ msg }) {
               <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 6 }}>
                 <button
                   onClick={async () => {
-                    const { addCommunityPost } = useAppStore.getState();
+                    const storeState = useAppStore.getState();
+                    const userName = storeState.user?.displayName || storeState.user?.email?.split('@')[0] || 'Green Earthling';
+                    
                     const newPost = {
                       id: `p_${Date.now()}`,
-                      user_name: 'Green Earthling',
+                      user_name: userName,
                       user_city: 'India',
-                      user_avatar: 'G',
+                      user_avatar: userName.charAt(0).toUpperCase(),
                       caption: msg.content,
                       post_type: 'update',
                       likes: 0, liked_by: [], comments: [], badges: ['🤖 AI Shared'], created_at: new Date().toISOString()
                     };
-                    await addCommunityPost(newPost);
+                    await storeState.addCommunityPost(newPost);
                     toast.success('Shared to Community Feed! 🌍');
                   }}
                   title="Share to Community"

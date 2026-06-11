@@ -212,16 +212,21 @@ export default function Layout() {
         justifyContent: 'space-around',
         boxShadow: '0 -4px 20px rgba(0,0,0,0.2)'
       }}>
-        {NAV.filter(n => ['/dashboard', '/track', '/chat', '/profile'].includes(n.to)).map(({ to, icon: Icon, label }) => (
-          <NavLink key={to} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
-            {({ isActive }) => (
-              <>
-                <Icon size={24} color={isActive ? 'var(--green-400)' : 'var(--text-dim)'} />
-                <span style={{ fontSize: 11, color: isActive ? 'var(--green-400)' : 'var(--text-dim)', fontWeight: 600 }}>{label.split(' ')[0]}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
+        {['/community', '/track', '/knowledge', '/chat', '/profile'].map(path => {
+          const item = NAV.find(n => n.to === path);
+          if (!item) return null;
+          const { to, icon: Icon, label } = item;
+          return (
+            <NavLink key={to} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
+              {({ isActive }) => (
+                <>
+                  <Icon size={24} color={isActive ? 'var(--green-400)' : 'var(--text-dim)'} />
+                  <span style={{ fontSize: 11, color: isActive ? 'var(--green-400)' : 'var(--text-dim)', fontWeight: 600 }}>{label.split(' ')[0]}</span>
+                </>
+              )}
+            </NavLink>
+          );
+        })}
       </div>
 
       {/* Mobile Sidebar Overlay */}

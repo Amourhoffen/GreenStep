@@ -33,7 +33,7 @@ export const useAppStore = create(
   user: null,
   isAuthenticated: false,
   isDemo: false,
-  hasCompletedOnboarding: false,
+  hasCompletedOnboarding: true,
 
   completeOnboarding: () => set({ hasCompletedOnboarding: true }),
 
