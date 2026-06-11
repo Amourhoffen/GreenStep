@@ -175,18 +175,24 @@ In the future, GreenStep aims to become a **Global Carbon Offset Marketplace & S
 3. **Hyper-local Predictive AI Model**: Using satellite data and local weather APIs to predict pollution levels and recommend real-time eco-actions to users.
 4. **Blockchain-based Eco-Credits**: Tokenizing tree-planting efforts so users can trade their verified carbon offsets in a decentralized marketplace.
 
-## 📸 Interactive Pitch Deck & Screenshots
+## 📸 Interactive Pitch Deck & Showcase
 
 To see the complete vision, design, and flow of GreenStep, check out our Interactive Pitch Deck built right into the app:
 
 ### 👉 [**View GreenStep Interactive Presentation**](https://greenstep-backend-904888201027.us-central1.run.app/presentation) 👈
 
-*(The link above opens an interactive slide deck showcasing the Dashboard, Map, Gemini Vision, and AI Chat features).*
+---
 
-<br>
+### 🌟 Project Gallery
+
 <div align="center">
-  <img src="https://via.placeholder.com/800x400.png?text=Dashboard+Screenshot" alt="Dashboard" width="45%" />
-  <img src="https://via.placeholder.com/800x400.png?text=Events+Map+Screenshot" alt="Events Map" width="45%" />
+  <img src="docs/solution.png" alt="The GreenStep Solution" width="80%" style="border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+  
+  <img src="docs/tree_scanner.png" alt="Gemini Vision Tree Scanner" width="80%" style="border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+  
+  <img src="docs/ai_advisor.png" alt="Multi-Model AI Advisor" width="80%" style="border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+  
+  <img src="docs/knowledge_hub.png" alt="Knowledge Hub" width="80%" style="border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
 </div>
 
 ## 🛠️ Setup Instructions
