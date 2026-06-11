@@ -102,6 +102,18 @@ graph TD
 | **Simple Actions** | **Gemini Vision Tree Scanner:** Simply snap a photo of a tree; AI identifies the species, calculates its CO₂ offset, and logs it. |
 | **Personalized Insights** | ML-driven personalized tasks based on user activity, and an AI Climate Advisor bot trained on IPCC data. |
 
+## 🗺️ End-to-End User Journey (The GreenStep Flow)
+
+GreenStep is designed as a complete psychological and actionable journey to turn awareness into real-world impact:
+
+1. **Personalized Discovery:** The user logs in and inputs their daily routine. GreenStep's ML privately calculates their CO₂ footprint and recommends exactly what they need to do to offset it (e.g., "Plant 5 Trees").
+2. **AI-Guided Education:** Confused about how to start? The user chats with the **RAG-powered AI Advisor** (supporting multiple models) to understand *why* they need to plant trees. For visual learners, the **Knowledge Hub** provides curated videos highlighting the real-world climate crisis.
+3. **Action & Verification:** Motivated, the user plants a tree and uses the **Gemini Vision Tree Scanner**. The AI verifies the tree, calculates its future CO₂ offset, and explains its localized environmental benefits.
+4. **Social & Professional Impact:** The user shares their achievement directly to the **GreenStep Community Feed** and **LinkedIn**. This creates a social network of like-minded eco-warriors.
+5. **Continuous Engagement:** Using the **Map & Activity Logger**, the user tracks daily transport/food emissions, joins local real-world eco-events (like beach cleanups), and earns **Rewards & Coupons**.
+6. **The Ultimate Goal:** The social network grows, continuous actions convert CO₂ to O₂, and we collectively save the world. 
+> **"GreenStep — Ek Step, Life ko Green karne ka."**
+
 ## 🚀 Features
 
 - **Initial Baseline Quiz**: Animated onboarding quiz to calculate baseline carbon footprints.
