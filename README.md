@@ -4,11 +4,13 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![Firebase](https://img.shields.io/badge/Firebase-ffca28?style=for-the-badge&logo=firebase&logoColor=black)
 
-> **An AI-powered Carbon Footprint Tracker and Climate Action Community Platform**
+> **Submission for PromptWars Virtual - Challenge 3: Carbon Footprint Awareness Platform**
 
-GreenStep is an advanced, modern web application designed to empower individuals and communities to track their carbon footprints, offset emissions through real-world actions (like planting trees), and participate in eco-challenges. Built with React, FastAPI, Firebase, and cutting-edge Large Language Models (LLMs).
+GreenStep is an advanced, modern web application designed to help individuals **understand, track, and reduce** their carbon footprints through simple actions and personalized ML insights. Built with React, FastAPI, Firebase, and cutting-edge Google Gemini Vision/Chat LLMs.
 
 **Developed by Prince Kumar (Prince Kashyap) @ IIT Patna.**
+
+🟢 **Live Application Demo:** [https://greenstep-backend-904888201027.us-central1.run.app](https://greenstep-backend-904888201027.us-central1.run.app)
 
 ---
 
@@ -90,9 +92,20 @@ graph TD
 
 ---
 
+## 🌟 PromptWars Challenge 3 Alignment
+
+| Challenge Criteria | GreenStep Implementation |
+| :--- | :--- |
+| **Understand** | Animated onboarding baseline calculator, rich dashboard visualizations, and "Journey Calculator" to predict 10-year emissions. |
+| **Track** | Custom **Activity Logger** (Transport, Food, Energy) and real-time community leaderboard sync. |
+| **Reduce** | Eco-Challenges (e.g. Meatless Week), real-world Rewards marketplace, and Local Events integration (Beach Cleanups). |
+| **Simple Actions** | **Gemini Vision Tree Scanner:** Simply snap a photo of a tree; AI identifies the species, calculates its CO₂ offset, and logs it. |
+| **Personalized Insights** | ML-driven personalized tasks based on user activity, and an AI Climate Advisor bot trained on IPCC data. |
+
 ## 🚀 Features
 
 - **Initial Baseline Quiz**: Animated onboarding quiz to calculate baseline carbon footprints.
+- **Gemini Vision Tree Scanner**: Upload tree photos to instantly get species identification, age, and 10-year CO2 offset projections.
 - **Smart Integrations**: Connect Strava or Google Fit to automate activity tracking.
 - **Eco-Challenges & Rewards**: Join real-time challenges and spend earned points on real-world promo codes.
 - **Local Events Map**: RSVP to tree planting drives and beach cleanups on a live interactive map.
