@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text y='20' font-size='20'>🌱</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenStep — Carbon Footprint Awareness Platform</title>
+    <meta name="description" content="Track, reduce, and offset your carbon footprint with AI. Real-time CO₂ calculations powered by Gemini AI, Google Maps, and WattTime. Plant trees, see your impact, join the community." />
+    <meta name="keywords" content="carbon footprint, CO2 tracker, climate action, tree planting, Gemini AI, sustainability, India" />
+    <meta property="og:title" content="GreenStep — Carbon Footprint Awareness Platform" />
+    <meta property="og:description" content="AI-powered carbon tracking with Gemini 1.5 Pro. Real-time CO₂ calculations, tree planting with photo analysis, community feed." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#22c55e" />
+    <style>
+      body { margin: 0; background: #070d09; }
+      #loading-screen {
+        position: fixed; inset: 0;
+        background: #070d09;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        font-family: system-ui, sans-serif;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      }
+      .leaf-spin {
+        font-size: 48px;
+        animation: spin 1.5s ease-in-out infinite;
+      }
+      @keyframes spin {
+        0%, 100% { transform: rotate(-10deg) scale(1); }
+        50% { transform: rotate(10deg) scale(1.1); }
+      }
+      .load-text { color: #4ade80; font-size: 18px; font-weight: 700; margin-top: 16px; letter-spacing: 0.05em; }
+      .load-sub { color: #4b5563; font-size: 12px; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <div id="loading-screen">
+      <div class="leaf-spin">🌱</div>
+      <div class="load-text">GreenStep</div>
+      <div class="load-sub">Loading Carbon Tracker...</div>
+    </div>
+    <div id="root"></div>
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const ls = document.getElementById('loading-screen');
+          if (ls) { ls.style.opacity = '0'; setTimeout(() => ls.remove(), 500); }
+        }, 800);
+      });
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
