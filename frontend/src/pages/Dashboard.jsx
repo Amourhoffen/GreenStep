@@ -12,6 +12,9 @@ const CATEGORY_CONFIG = {
 };
 
 function StatCard({ icon: Icon, label, value, unit, color, sub }) {
+  /**
+   * Reusable Stat Card Component
+   */
   return (
     <motion.div
       whileHover={{ y: -4, boxShadow: `0 12px 30px ${color}15` }}
@@ -46,12 +49,15 @@ function StatCard({ icon: Icon, label, value, unit, color, sub }) {
 }
 
 function CarbonScoreRing({ score }) {
+  /**
+   * Renders the carbon score circular indicator
+   */
   const r = 48;
   const circ = 2 * Math.PI * r;
   const filled = (score / 100) * circ;
   const color = score >= 70 ? '#22c55e' : score >= 40 ? '#f59e0b' : '#ef4444';
   return (
-    <div style={{ position: 'relative', width: 128, height: 128, flexShrink: 0 }}>
+    <div style={{ position: 'relative', width: 128, height: 128, flexShrink: 0 }} aria-label={`Carbon Score: ${score}`} role="meter" aria-valuenow={score} aria-valuemin="0" aria-valuemax="100">
       <svg width="128" height="128" viewBox="0 0 128 128">
         <circle cx="64" cy="64" r={r} fill="none" stroke="rgba(74,222,128,0.07)" strokeWidth="10" />
         <circle
@@ -103,6 +109,8 @@ export default function Dashboard() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      role="main"
+      aria-label="Dashboard Overview"
     >
       {/* ── Welcome Hero Banner ── */}
       <motion.div 
@@ -128,11 +136,11 @@ export default function Dashboard() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <NavLink to="/track" className="btn-primary" style={{ padding: '10px 20px', fontSize: 13 }}>
-            <Activity size={15} /> Log Activity
+          <NavLink to="/track" className="btn-primary" style={{ padding: '10px 20px', fontSize: 13 }} aria-label="Log a new activity">
+            <Activity size={15} aria-hidden="true" /> Log Activity
           </NavLink>
-          <NavLink to="/plant" className="btn-secondary" style={{ padding: '10px 18px', fontSize: 13 }}>
-            <TreePine size={15} /> Plant Tree
+          <NavLink to="/plant" className="btn-secondary" style={{ padding: '10px 18px', fontSize: 13 }} aria-label="Plant a tree">
+            <TreePine size={15} aria-hidden="true" /> Plant Tree
           </NavLink>
         </div>
       </motion.div>

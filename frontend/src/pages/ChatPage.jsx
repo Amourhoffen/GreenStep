@@ -76,6 +76,11 @@ const SUGGESTED_QUESTIONS = [
   'What is my biggest source of CO₂?',
 ];
 
+/**
+ * Formats chat message text, highlighting code, bolding, and lists.
+ * @param {string} text - Raw message text.
+ * @returns {string} Formatted HTML string.
+ */
 function formatMessage(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -87,6 +92,9 @@ function formatMessage(text) {
 }
 
 // ─── Model Picker Dropdown ────────────────────────────────────────────────────
+/**
+ * Component to select the AI model used for the chat.
+ */
 function ModelPicker({ selected, onChange }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -102,6 +110,7 @@ function ModelPicker({ selected, onChange }) {
     <div ref={ref} style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen(v => !v)}
+        aria-label="Select AI model" aria-haspopup="listbox" aria-expanded={open}
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '7px 12px', borderRadius: 10,
@@ -156,6 +165,9 @@ function ModelPicker({ selected, onChange }) {
   );
 }
 
+/**
+ * Individual model option button.
+ */
 function ModelOption({ model, selected, onSelect }) {
   const isSelected = model.key === selected;
   return (
@@ -191,6 +203,9 @@ function ModelOption({ model, selected, onSelect }) {
 }
 
 // ─── Message Bubble ───────────────────────────────────────────────────────────
+/**
+ * Renders a single chat message bubble.
+ */
 function MessageBubble({ msg }) {
   const [copied, setCopied] = useState(false);
   const model = MODELS.find(m => m.key === msg.modelKey);
@@ -275,6 +290,7 @@ function MessageBubble({ msg }) {
             {msg.role === 'assistant' && msg.content && (
               <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 6 }}>
                 <button
+                  aria-label="Share message to community"
                   onClick={async () => {
                     const storeState = useAppStore.getState();
                     const userName = storeState.user?.displayName || storeState.user?.email?.split('@')[0] || 'Green Earthling';
@@ -306,6 +322,7 @@ function MessageBubble({ msg }) {
                 <button
                   onClick={handleCopy}
                   title="Copy response"
+                  aria-label="Copy AI response"
                   style={{
                     background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)',
                     borderRadius: 6, padding: '3px 6px', cursor: 'pointer',
@@ -475,6 +492,7 @@ export default function ChatPage() {
               <button
                 onClick={() => clearChatMessages()}
                 title="Clear chat"
+                aria-label="Clear chat history"
                 style={{
                   padding: '7px 10px', borderRadius: 10,
                   background: 'var(--bg-card)', border: '1px solid var(--border)',
@@ -580,6 +598,8 @@ export default function ChatPage() {
           onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none'; }}
         >
           <textarea
+            id="chat-input"
+            aria-label="Chat input"
             ref={textareaRef}
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -598,6 +618,7 @@ export default function ChatPage() {
             onClick={() => handleSend()}
             disabled={loading || !input.trim()}
             style={{ borderRadius: 10, padding: '10px 16px', flexShrink: 0 }}
+            aria-label="Send message"
           >
             {loading
               ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />

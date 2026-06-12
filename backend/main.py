@@ -48,6 +48,7 @@ from fastapi import Request
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
+    """Add security headers to responses for better client security."""
     response = await call_next(request)
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
     response.headers["Cross-Origin-Embedder-Policy"] = "unsafe-none"
@@ -71,6 +72,7 @@ if os.path.isdir("static"):
     
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
+        """Serve the React Single Page Application and static assets."""
         if full_path.startswith("api/"):
             from fastapi import HTTPException
             raise HTTPException(status_code=404, detail="API route not found")
@@ -83,6 +85,7 @@ if os.path.isdir("static"):
 else:
     @app.get("/")
     async def root():
+        """Root endpoint returning basic API status."""
         return {"message": "🌱 GreenStep API is running", "version": "1.0.0"}
 
 if __name__ == "__main__":

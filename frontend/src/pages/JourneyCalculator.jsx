@@ -23,6 +23,11 @@ const VEHICLES = [
 ];
 
 // ─── Colour helpers ───────────────────────────────────────────────────────────
+/**
+ * Returns a color code based on CO2 emission weight.
+ * @param {number} kg - The amount of CO2 in kg.
+ * @returns {string} Hex color string.
+ */
 function co2Color(kg) {
   if (kg < 5)   return '#22c55e';
   if (kg < 20)  return '#84cc16';
@@ -32,6 +37,9 @@ function co2Color(kg) {
 }
 
 // ─── Animated SVG Emission Ring ───────────────────────────────────────────────
+/**
+ * Renders an animated SVG ring for CO2 emissions.
+ */
 function EmissionRing({ co2Kg, maxKg, color, size = 180 }) {
   const r = size / 2 - 18;
   const circumference = 2 * Math.PI * r;
@@ -39,10 +47,11 @@ function EmissionRing({ co2Kg, maxKg, color, size = 180 }) {
   const offset = circumference * (1 - pct);
 
   return (
-    <svg width={size} height={size} style={{ overflow: 'visible' }}>
-      {/* Track */}
-      <circle cx={size/2} cy={size/2} r={r} fill="none"
-        stroke="rgba(255,255,255,0.06)" strokeWidth={14} />
+    <div role="meter" aria-valuenow={co2Kg} aria-valuemin="0" aria-valuemax={maxKg} aria-label={`Emission: ${co2Kg.toFixed(1)} kg CO2e`}>
+      <svg width={size} height={size} style={{ overflow: 'visible' }} aria-hidden="true">
+        {/* Track */}
+        <circle cx={size/2} cy={size/2} r={r} fill="none"
+          stroke="rgba(255,255,255,0.06)" strokeWidth={14} />
       {/* Fill */}
       <motion.circle
         cx={size/2} cy={size/2} r={r} fill="none"
@@ -66,10 +75,14 @@ function EmissionRing({ co2Kg, maxKg, color, size = 180 }) {
         kg CO₂e
       </text>
     </svg>
+    </div>
   );
 }
 
 // ─── Alternative bar card ─────────────────────────────────────────────────────
+/**
+ * Renders an alternative transport comparison bar.
+ */
 function AltBar({ alt, primaryCo2, delay }) {
   const pct = Math.min((alt.co2_kg / primaryCo2) * 100, 100);
   const barColor = alt.type === 'Metro' ? '#8b5cf6' : alt.type === 'Bus' ? '#3b82f6' : '#22c55e';
@@ -287,7 +300,7 @@ export default function JourneyCalculator() {
 
             {/* Origin */}
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 8 }}>
+              <label htmlFor="journey-origin" style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 8 }}>
                 📍 From (Origin)
               </label>
               <input
@@ -317,7 +330,7 @@ export default function JourneyCalculator() {
 
             {/* Destination */}
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 8 }}>
+              <label htmlFor="journey-destination" style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 8 }}>
                 🏁 To (Destination)
               </label>
               <input
@@ -341,6 +354,8 @@ export default function JourneyCalculator() {
                   <button
                     key={v.key}
                     type="button"
+                    aria-label={`Select ${v.label}`}
+                    aria-pressed={form.vehicle_type === v.key}
                     onClick={() => setForm(f => ({ ...f, vehicle_type: v.key }))}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 8,

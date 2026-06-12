@@ -4,6 +4,10 @@ import toast from 'react-hot-toast';
 import { useAppStore } from '../store/appStore';
 import { fetchGlobalChallenges, fetchUserChallenges, joinUserChallenge, leaveUserChallenge } from '../services/firebaseService';
 
+/**
+ * Displays a countdown timer to a target date.
+ * @param {{ targetDate: any }} props 
+ */
 function CountdownTimer({ targetDate }) {
   const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
@@ -152,11 +156,11 @@ export default function Challenges() {
                   <div className="progress-fill" style={{ width: `${progress}%` }} />
                 </div>
                 {progress >= 100 ? (
-                  <button className="btn-primary" style={{ width: '100%', marginTop: 16, padding: '10px', borderRadius: 12 }} disabled>
-                    <CheckCircle2 size={16} style={{ display: 'inline', marginRight: 6 }} /> Completed
+                  <button className="btn-primary" style={{ width: '100%', marginTop: 16, padding: '10px', borderRadius: 12 }} disabled aria-label="Challenge completed">
+                    <CheckCircle2 size={16} style={{ display: 'inline', marginRight: 6 }} aria-hidden="true" /> Completed
                   </button>
                 ) : (
-                  <button onClick={() => toggleJoin(challenge.id)} className="btn-secondary" style={{ width: '100%', marginTop: 16, padding: '10px', borderRadius: 12 }}>
+                  <button onClick={() => toggleJoin(challenge.id)} className="btn-secondary" style={{ width: '100%', marginTop: 16, padding: '10px', borderRadius: 12 }} aria-label={`Leave challenge ${challenge.title}`}>
                     Leave Challenge
                   </button>
                 )}
@@ -166,8 +170,9 @@ export default function Challenges() {
                 onClick={() => toggleJoin(challenge.id)}
                 className="btn-primary" 
                 style={{ width: '100%', marginTop: 'auto', padding: '12px', borderRadius: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                aria-label={`Join challenge ${challenge.title}`}
               >
-                <Target size={18} /> Join Challenge
+                <Target size={18} aria-hidden="true" /> Join Challenge
               </button>
             )}
           </div>

@@ -34,12 +34,12 @@
     </style>
   </head>
   <body>
-    <div id="loading-screen">
-      <div class="leaf-spin">🌱</div>
+    <div id="loading-screen" role="status" aria-live="polite" aria-label="Loading application">
+      <div class="leaf-spin" aria-hidden="true">🌱</div>
       <div class="load-text">GreenStep</div>
       <div class="load-sub">Loading Carbon Tracker...</div>
     </div>
-    <div id="root"></div>
+    <main id="root"></main>
     <script>
       window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {

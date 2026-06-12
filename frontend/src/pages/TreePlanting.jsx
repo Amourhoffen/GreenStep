@@ -11,6 +11,11 @@ const TREE_EMOJIS = {
   'teak': '🪵', 'gulmohar': '🌺', 'default': '🌱',
 };
 
+/**
+ * Returns a corresponding emoji for a given tree species.
+ * @param {string} species - The species name.
+ * @returns {string} Emoji character.
+ */
 function getTreeEmoji(species) {
   const s = species?.toLowerCase() || '';
   return Object.entries(TREE_EMOJIS).find(([k]) => s.includes(k))?.[1] || TREE_EMOJIS.default;
@@ -194,10 +199,11 @@ export default function TreePlanting() {
 
           {/* Location */}
           <div className="glass-card" style={{ padding: '18px', marginBottom: 16 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 8 }}>
+            <label htmlFor="tree-location" style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 8 }}>
               📍 Tree Location (for climate data)
             </label>
             <input
+              id="tree-location"
               className="input"
               placeholder="e.g. Patna, Bihar"
               value={location}
@@ -213,6 +219,7 @@ export default function TreePlanting() {
             onClick={handleAnalyze}
             disabled={loading || (!imagePreview)}
             style={{ width: '100%', justifyContent: 'center', padding: 14 }}
+            aria-label="Analyze tree photo with AI"
           >
             {loading ? (
               <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Gemini Vision analyzing...</>
@@ -311,10 +318,12 @@ export default function TreePlanting() {
                 onClick={handleSave}
                 disabled={saved}
                 style={{ flex: 1, justifyContent: 'center' }}
+                aria-label="Save tree to activity log"
               >
                 {saved ? <><CheckCircle size={16} /> Saved!</> : <><TreePine size={16} /> Save My Tree</>}
               </button>
               <button className="btn-secondary" style={{ gap: 6 }}
+                aria-label="Share tree on LinkedIn"
                 onClick={() => {
                   const text = `🌳 I just planted a ${result.species_common} tree! It will absorb ${result['10_year_projection_kg']?.toFixed(0)}kg CO₂ over 10 years. #GreenStep #ClimateAction`;
                   window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin)}&summary=${encodeURIComponent(text)}`);
