@@ -11,6 +11,15 @@ GreenStep is an advanced, modern web application designed to help individuals **
 **Developed by Prince Kumar (Prince Kashyap) @ IIT Patna.**
 
 🟢 **Live Application Demo:** [https://greenstep-backend-904888201027.us-central1.run.app](https://greenstep-backend-904888201027.us-central1.run.app)
+📺 **Full Video Demo:** [Watch on YouTube](https://youtu.be/w4w1CQvTQG8?si=jQxV80GGiR8LU50H)
+
+<div align="center">
+  <a href="https://youtu.be/w4w1CQvTQG8?si=jQxV80GGiR8LU50H">
+    <img src="https://img.youtube.com/vi/w4w1CQvTQG8/maxresdefault.jpg" alt="GreenStep Demo Video" width="80%" style="border-radius: 10px; margin-top: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+  </a>
+  <br/>
+  <i>Click to watch the full project demonstration!</i>
+</div>
 
 ---
 

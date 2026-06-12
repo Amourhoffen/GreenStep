@@ -61,6 +61,9 @@ export default function TreePlanting() {
       if (imagePreview) {
         const base64 = imagePreview.split(',')[1];
         data = await analyzeTree(base64, location, weatherData);
+        if (data && data.confidence_pct === 0) {
+          throw new Error('Analysis failed or returned unknown');
+        }
       } else {
         throw new Error('No image');
       }
